@@ -1,0 +1,427 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我用 4 个依赖做了个白板，替代 Excalidraw — maomaoguai</title>
+<meta name="description" content="别的白板要你注册。这个不用。别的白板要联网。这个不用。别的白板加载 2MB。这个 160KB。">
+<meta property="og:title" content="我用 4 个依赖做了个白板，替代 Excalidraw">
+<meta property="og:description" content="4 个依赖，0 CDN，160KB，中国直接打开就能画。">
+<meta property="og:url" content="https://11suixing11.github.io/homepage/blog/4deps.html">
+<style>
+:root {
+  --bg-primary: #0D1117;
+  --bg-secondary: #161B22;
+  --bg-card: rgba(22, 27, 34, 0.8);
+  --border-default: rgba(139, 148, 158, 0.15);
+  --accent-purple: #8E24AA;
+  --accent-purple-light: #AB47BC;
+  --accent-blue: #1E88E5;
+  --accent-blue-light: #42A5F5;
+  --text-primary: #E6EDF3;
+  --text-secondary: #8B949E;
+  --text-muted: #6E7681;
+  --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Helvetica, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", Consolas, monospace;
+  --radius-card: 12px;
+  --transition-fast: 0.2s ease;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: var(--font-stack);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent-blue-light); text-decoration: none; transition: color var(--transition-fast); }
+a:hover { color: var(--accent-purple-light); }
+
+/* NAV */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 14px 0;
+  background: rgba(13, 17, 23, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-default);
+}
+.nav .container {
+  max-width: 760px; margin: 0 auto; padding: 0 24px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-logo { font-weight: 700; font-size: 1.05rem; color: var(--text-primary); }
+.nav-logo span { color: var(--accent-purple-light); }
+.nav-links { display: flex; gap: 28px; }
+.nav-links a { color: var(--text-secondary); font-size: 0.88rem; font-weight: 500; }
+.nav-links a:hover { color: var(--text-primary); }
+
+/* ARTICLE */
+.article { max-width: 760px; margin: 0 auto; padding: 100px 24px 80px; }
+.article-meta {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 32px;
+  color: var(--text-muted); font-size: 0.85rem;
+}
+.article-meta .tag {
+  display: inline-block;
+  padding: 3px 10px;
+  background: rgba(142, 36, 170, 0.15);
+  color: var(--accent-purple-light);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.article h1 {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, var(--text-primary), var(--accent-purple-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.article .lead {
+  font-size: 1.15rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 48px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--border-default);
+}
+.article h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-top: 56px;
+  margin-bottom: 20px;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+.article h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-top: 36px;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+}
+.article p {
+  margin-bottom: 20px;
+  color: var(--text-secondary);
+}
+.article strong { color: var(--text-primary); font-weight: 600; }
+.article blockquote {
+  margin: 32px 0;
+  padding: 20px 24px;
+  border-left: 3px solid var(--accent-purple);
+  background: var(--bg-card);
+  border-radius: 0 var(--radius-card) var(--radius-card) 0;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+.article ul, .article ol {
+  margin-bottom: 20px;
+  padding-left: 24px;
+  color: var(--text-secondary);
+}
+.article li { margin-bottom: 8px; }
+.article code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  padding: 2px 7px;
+  background: rgba(139, 148, 158, 0.1);
+  border-radius: 4px;
+  color: var(--accent-blue-light);
+}
+.article pre {
+  margin: 24px 0;
+  padding: 20px 24px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-card);
+  overflow-x: auto;
+}
+.article pre code {
+  padding: 0; background: none; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7;
+}
+.article table {
+  width: 100%;
+  margin: 24px 0;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+.article th, .article td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-default);
+}
+.article th {
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+.article td { color: var(--text-secondary); }
+.article hr {
+  border: none;
+  border-top: 1px solid var(--border-default);
+  margin: 48px 0;
+}
+
+/* CTA BOX */
+.cta-box {
+  margin: 48px 0;
+  padding: 32px;
+  background: linear-gradient(135deg, rgba(142, 36, 170, 0.08), rgba(30, 136, 229, 0.08));
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-card);
+  text-align: center;
+}
+.cta-box p { margin-bottom: 16px; font-size: 1.05rem; color: var(--text-primary); }
+.cta-links { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.cta-links a {
+  display: inline-block;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+.cta-links .btn-primary {
+  background: var(--accent-purple);
+  color: #fff;
+}
+.cta-links .btn-primary:hover { background: var(--accent-purple-light); color: #fff; }
+.cta-links .btn-secondary {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  color: var(--text-primary);
+}
+.cta-links .btn-secondary:hover { border-color: var(--accent-purple); color: var(--text-primary); }
+
+/* BACK */
+.back-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-bottom: 40px;
+  color: var(--text-muted); font-size: 0.85rem;
+}
+.back-link:hover { color: var(--text-primary); }
+
+/* FOOTER */
+.footer {
+  max-width: 760px; margin: 0 auto;
+  padding: 32px 24px;
+  border-top: 1px solid var(--border-default);
+  display: flex; justify-content: space-between; align-items: center;
+  color: var(--text-muted); font-size: 0.82rem;
+}
+.footer a { color: var(--text-muted); }
+.footer a:hover { color: var(--text-primary); }
+
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .article { padding: 80px 16px 60px; }
+  .cta-links { flex-direction: column; align-items: center; }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="container">
+    <a href="../" class="nav-logo">maomaoguai<span>.</span></a>
+    <div class="nav-links">
+      <a href="../#projects">项目</a>
+      <a href="../#tech">技术栈</a>
+      <a href="../#about">关于</a>
+    </div>
+  </div>
+</nav>
+
+<article class="article">
+
+  <a href="../" class="back-link">← 返回首页</a>
+
+  <div class="article-meta">
+    <span class="tag">开源</span>
+    <span class="tag">Canvas</span>
+    <span class="tag">React</span>
+    <time>2026 年 6 月</time>
+  </div>
+
+  <h1>我用 4 个依赖做了个白板，替代 Excalidraw</h1>
+
+  <p class="lead">别的白板要你注册。这个不用。别的白板要联网。这个不用。别的白板加载 2MB。这个 160KB。</p>
+
+  <h2>为什么要做这个</h2>
+
+  <p>事情的起因很简单：有一天我想在电脑上随手画画，打开 Excalidraw，加载了 10 秒没出来。</p>
+
+  <p>我看了一眼 Network 面板——它从 CDN 拉了一堆东西：字体、图片库、协作模块……我只是想画个画。</p>
+
+  <p>然后我试了 tldraw，差不多。</p>
+
+  <p>更让我在意的是：<strong>这两个工具在中国大陆的体验都不好。</strong> CDN 被墙、加载慢、偶尔直接白屏。我不是在抱怨它们——它们都是优秀的开源项目。但我想要的是一个<strong>打开就能用</strong>的东西：</p>
+
+  <ul>
+    <li>不注册</li>
+    <li>不联网</li>
+    <li>不加载 CDN</li>
+    <li>不问你要不要开启协作</li>
+  </ul>
+
+  <p>就是打开，画，关掉。</p>
+
+  <hr />
+
+  <h2>技术选型：做减法</h2>
+
+  <p>我给自己定了一个硬约束：<strong>生产依赖不超过 5 个。</strong></p>
+
+  <p>最终只用了 4 个：</p>
+
+  <table>
+    <thead><tr><th>依赖</th><th>用途</th></tr></thead>
+    <tbody>
+      <tr><td>react + react-dom</td><td>UI 框架</td></tr>
+      <tr><td>zustand</td><td>状态管理</td></tr>
+      <tr><td>jspdf</td><td>PDF 导出</td></tr>
+      <tr><td>perfect-freehand</td><td>笔画压感</td></tr>
+    </tbody>
+  </table>
+
+  <p>就这些。没有 UI 库，没有图标库，没有路由库，没有动画库。</p>
+
+  <p><strong>UI 自己写。</strong> 工具栏、侧栏、弹窗、tooltip——全部手写组件。不是因为我不想用 shadcn，而是每个额外依赖都是一个潜在的加载瓶颈和维护负担。</p>
+
+  <p><strong>图标用 SVG inline。</strong> 20 多个图标，全部内联到组件里，0 个外部请求。</p>
+
+  <p><strong>样式用 CSS Modules + CSS 变量。</strong> 一套暖色系变量控制全局，切换暗色模式只需要翻转变量值。</p>
+
+  <hr />
+
+  <h2>Canvas 性能：不卡的秘密</h2>
+
+  <p>白板的核心是 Canvas。如果画了 200 个元素就开始卡，那这个工具就没意义。</p>
+
+  <p>我用了三个关键优化：</p>
+
+  <h3>1. 离屏 Canvas 缓存</h3>
+
+  <p>每个元素渲染一次后，缓存到一个离屏 Canvas。后续重绘时直接 <code>drawImage</code>，不需要重新执行所有绘图指令。</p>
+
+  <pre><code>// 每个元素有自己的离屏缓存
+const offscreen = new OffscreenCanvas(width, height);
+const ctx = offscreen.getContext('2d');
+// 绘制一次，后续直接贴图
+mainCtx.drawImage(offscreen, x, y);</code></pre>
+
+  <h3>2. rAF 批处理</h3>
+
+  <p>状态变化时不立即重绘，而是在下一帧统一处理。多个连续的状态更新会被合并成一次重绘。</p>
+
+  <pre><code>let pending = false;
+function scheduleRedraw() {
+  if (pending) return;
+  pending = true;
+  requestAnimationFrame(() =&gt; {
+    render();
+    pending = false;
+  });
+}</code></pre>
+
+  <h3>3. LRU 图片缓存</h3>
+
+  <p>用户插入的图片会占用内存。我做了一个 LRU 缓存，上限 50 张。超过后最久未使用的图片会被回收，需要时重新加载。</p>
+
+  <p>这三个加在一起，200+ 元素的画布依然流畅。</p>
+
+  <hr />
+
+  <h2>设计：暖色纸纹</h2>
+
+  <p>我不想做一个"功能性工具"。我希望打开它的那一刻，感觉是温暖的。</p>
+
+  <ul>
+    <li><strong>颜色：</strong> 主色是 <code>#f5f0e8</code>（暖白）和 <code>#c47a5a</code>（焦赭）。不是纯白，不是冷灰，是旧书页的颜色。</li>
+    <li><strong>纸纹：</strong> 用 SVG 噪点做了一层纸纹理叠加在画布上。不影响性能（纯 CSS），但让整个画面有了质感。</li>
+    <li><strong>圆角：</strong> 统一 14px。</li>
+    <li><strong>间距：</strong> 工具按钮 42px，间距 8px。所有尺寸都是 8 的倍数。</li>
+    <li><strong>动画：</strong> 统一缓动曲线 <code>cubic-bezier(0.4, 0, 0.2, 1)</code>，时长 200ms。</li>
+  </ul>
+
+  <hr />
+
+  <h2>4 个依赖 vs 20+ 个依赖</h2>
+
+  <table>
+    <thead>
+      <tr><th></th><th>MindNotes Pro</th><th>Excalidraw</th><th>tldraw</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>生产依赖</td><td><strong>4</strong></td><td>20+</td><td>30+</td></tr>
+      <tr><td>打包体积 (gzip)</td><td><strong>160KB</strong></td><td>~1.5MB</td><td>~2MB</td></tr>
+      <tr><td>外部 CDN</td><td><strong>0</strong></td><td>多个</td><td>多个</td></tr>
+      <tr><td>中国可用</td><td><strong>✅ 直接打开</strong></td><td>❌ 需要梯子</td><td>❌ 需要梯子</td></tr>
+      <tr><td>离线可用</td><td><strong>✅</strong></td><td>⚠️ 部分</td><td>⚠️ 部分</td></tr>
+      <tr><td>协作</td><td>❌</td><td>✅</td><td>✅</td></tr>
+    </tbody>
+  </table>
+
+  <p>是的，我没有协作功能。这是有意为之。协作是一个巨大的功能，它带来 WebSocket、用户系统、冲突解决、服务器成本……我想要的是一个<strong>本地工具</strong>，就像你的笔记本，不需要连网就能用。</p>
+
+  <hr />
+
+  <h2>功能：不多不少</h2>
+
+  <p>6 种笔刷（钢笔、荧光笔、铅笔、书法笔、虚线笔、霓虹笔），9 种工具（选择、画笔、橡皮、平移、矩形、圆形、文字、直线、箭头），6 种导出格式（PNG、JPG、PDF、SVG、Word、JSON）。</p>
+
+  <p>框选、对齐辅助线、形状填充、Shift 约束、图片插入、多画布管理、暗色模式、快捷键。</p>
+
+  <p>这些都是"一个白板应该有的功能"。没有做花哨的 AI 功能，没有做模板市场，没有做云端同步。</p>
+
+  <blockquote>打开就画，画完就走。</blockquote>
+
+  <h2>离线版</h2>
+
+  <p>除了在线版，我还提供了离线版：下载一个 zip，解压后双击 <code>index.html</code> 就能用。不需要安装 Node.js，不需要 <code>npm install</code>，不需要构建。</p>
+
+  <p>这是我最初就想做到的事情——<strong>让工具回到它最简单的形态。</strong></p>
+
+  <p>一个 HTML 文件，打开就能用。</p>
+
+  <hr />
+
+  <h2>一些数字</h2>
+
+  <ul>
+    <li>仓库创建于 2026 年 3 月</li>
+    <li>目前 8 个 star</li>
+    <li>1 个 fork</li>
+    <li>0 个 CDN 依赖</li>
+    <li>4 个生产依赖</li>
+    <li>160KB gzip 体积</li>
+  </ul>
+
+  <hr />
+
+  <div class="cta-box">
+    <p>如果你在中国，如果你不想注册，如果你只是想打开就画——试试看。</p>
+    <div class="cta-links">
+      <a href="https://11suixing11.github.io/mindnotes-pro/" class="btn-primary">🔗 在线使用</a>
+      <a href="https://github.com/11suixing11/mindnotes-pro/releases" class="btn-secondary">📦 下载离线版</a>
+      <a href="https://github.com/11suixing11/mindnotes-pro" class="btn-secondary">⭐ GitHub</a>
+    </div>
+  </div>
+
+  <p style="text-align:center;color:var(--text-muted);margin-top:32px;">如果这个项目帮你省了 5 分钟，一个 star 就是它应得的。</p>
+
+</article>
+
+<footer class="footer">
+  <span>© 2026 maomaoguai</span>
+  <a href="https://github.com/11suixing11">GitHub →</a>
+</footer>
+
+</body>
+</html>
