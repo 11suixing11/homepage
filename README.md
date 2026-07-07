@@ -1,26 +1,26 @@
-﻿# 🏠 maomaoguai's Homepage
+# maomaoguai's Homepage
 
-> 做工具的人。不写文章，不搞教程，只做能用的东西。
+Personal GitHub Pages site for 11suixing11.
 
-[🌐 Live Demo](https://11suixing11.github.io/homepage/)
+Live site: https://11suixing11.github.io/homepage/
+
+## Purpose
+
+This site is the public entry point for my maintained projects, recent open-source work, and engineering notes. The tone is intentionally practical: what the projects do, where their boundaries are, and what maintenance work is happening now.
 
 ## Tech Stack
 
-Pure HTML/CSS/JS — zero dependencies, zero CDN, 25KB total.
+Static HTML, CSS, and a small amount of vanilla JavaScript. No build step is required.
 
-## Features
+## Content
 
-- 🌙 Dark/Light mode with localStorage persistence
-- 🎨 Fluid gradient background with floating orbs
-- 📊 Animated stats counter
-- 🛠 Tech stack progress bars
-- 📂 Project showcase cards
-- ✨ Scroll-triggered animations (Intersection Observer)
-- 📱 Fully responsive
+- Maintained projects: MindNotes Pro, Thesis Optimizer, Quiz Platform
+- Recent upstream contributions to plait-board/drawnix
+- Notes on local-first tools, responsible AI workflows, and self-reflection products
 
 ## Deploy
 
-Push to main branch → GitHub Actions auto-deploys to GitHub Pages.
+GitHub Pages serves the `main` branch.
 
 ## License
 
