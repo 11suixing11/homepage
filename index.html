@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>maomaoguai | 11suixing11</title>
-<meta name="description" content="maomaoguai builds local-first tools, responsible AI workflows, and small upstream fixes in open source.">
+<title>kittydev / 11suixing11</title>
+<meta name="description" content="Open-source contributor focused on TypeScript, React, Canvas interactions, and maintainable UI systems.">
 <link rel="icon" href="data:,">
 <style>
 :root {
@@ -89,15 +89,35 @@ a:hover { color: var(--warn); }
 .nav-links a:hover { color: var(--ink); }
 
 .hero {
-  padding: 78px 0 56px;
-  border-bottom: 1px solid var(--line);
+  position: relative;
+  display: flex;
+  height: min(74svh, 720px);
+  min-height: 560px;
+  overflow: hidden;
+  color: #f4f7f6;
+  background: #11171b;
+  border-bottom: 1px solid #273239;
+  isolation: isolate;
 }
 
-.hero-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(340px, 0.92fr);
-  gap: 48px;
-  align-items: center;
+.hero-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+}
+
+.hero-inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 46px;
+  padding-bottom: 42px;
+}
+
+.hero-copy {
+  max-width: 850px;
 }
 
 .eyebrow {
@@ -105,33 +125,33 @@ a:hover { color: var(--warn); }
   align-items: center;
   gap: 8px;
   margin-bottom: 18px;
-  color: var(--accent-strong);
+  color: #6fe1d1;
   font-size: 0.82rem;
   font-weight: 750;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
 }
 
 .eyebrow::before {
   content: "";
   width: 30px;
   height: 2px;
-  background: var(--accent);
+  background: #6fe1d1;
 }
 
 h1 {
   margin: 0;
-  max-width: 780px;
-  font-size: clamp(2.3rem, 5vw, 4.7rem);
-  line-height: 1.04;
+  max-width: 850px;
+  font-size: 4.7rem;
+  line-height: 1.02;
   letter-spacing: 0;
 }
 
 .lead {
   max-width: 690px;
   margin: 24px 0 0;
-  color: var(--muted);
-  font-size: 1.08rem;
+  color: #bac6c8;
+  font-size: 1.1rem;
 }
 
 .actions {
@@ -155,10 +175,16 @@ h1 {
   font-weight: 700;
 }
 
+.hero .button {
+  border-color: #526168;
+  color: #f4f7f6;
+  background: rgba(17, 23, 27, 0.72);
+}
+
 .button.primary {
-  border-color: var(--accent);
-  background: var(--accent);
-  color: #ffffff;
+  border-color: #f0c866;
+  background: #f0c866;
+  color: #171b1d;
 }
 
 .button:hover {
@@ -166,55 +192,43 @@ h1 {
   box-shadow: var(--shadow);
 }
 
-.console {
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: var(--shadow);
-  overflow: hidden;
+.hero-proof {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 820px;
+  margin-top: 44px;
+  border-top: 1px solid #46545a;
+  border-bottom: 1px solid #46545a;
 }
 
-.console-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--line);
-  color: var(--quiet);
+.proof-item {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 15px 20px 16px 0;
+  color: #d9e1e2;
+  text-decoration: none;
+}
+
+.proof-item + .proof-item {
+  padding-left: 20px;
+  border-left: 1px solid #46545a;
+}
+
+.proof-item strong {
+  color: #f0c866;
+  font-family: "Cascadia Code", Consolas, monospace;
+  font-size: 1.02rem;
+}
+
+.proof-item span {
+  overflow-wrap: anywhere;
+  color: #9dabad;
   font-size: 0.82rem;
 }
 
-.dots {
-  display: flex;
-  gap: 6px;
-}
-
-.dots span {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--line);
-}
-
-.console-body {
-  padding: 20px;
-  background: #101923;
-  color: #d9e7e3;
-  font-family: "Cascadia Code", Consolas, monospace;
-  font-size: 0.88rem;
-}
-
-.console-line {
-  display: grid;
-  grid-template-columns: 88px 1fr;
-  gap: 14px;
-  padding: 9px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.console-line:last-child { border-bottom: 0; }
-
-.console-key { color: #89d8ca; }
+.proof-item:hover strong,
+.proof-item:hover span { color: #ffffff; }
 
 section { padding: 70px 0; }
 
@@ -230,12 +244,12 @@ section { padding: 70px 0; }
   font-size: 0.78rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
 }
 
 h2 {
   margin: 0;
-  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-size: 2.6rem;
   line-height: 1.15;
   letter-spacing: 0;
 }
@@ -414,15 +428,14 @@ footer {
 }
 
 @media (max-width: 900px) {
-  .hero-grid,
   .project-grid,
   .principle-grid,
   .notes-list {
     grid-template-columns: 1fr;
   }
 
-  .hero { padding-top: 54px; }
-  .console-line { grid-template-columns: 1fr; gap: 3px; }
+  h1 { font-size: 3.5rem; }
+  h2 { font-size: 2.25rem; }
   .log-item { grid-template-columns: 1fr; gap: 8px; }
 }
 
@@ -430,59 +443,95 @@ footer {
   .container { width: min(100% - 28px, 1120px); }
   .nav-links { display: none; }
   section { padding: 52px 0; }
-  .hero { padding: 44px 0; }
-  h1 { font-size: 2.35rem; }
-  .button { width: 100%; }
+  .hero { min-height: 560px; }
+  .hero-inner { padding-top: 34px; padding-bottom: 32px; }
+  .eyebrow { margin-bottom: 14px; font-size: 0.73rem; }
+  h1 { font-size: 2.65rem; }
+  h2 { font-size: 2rem; }
+  .lead { margin-top: 18px; font-size: 1rem; }
+  .actions { margin-top: 22px; }
+  .hero .button { width: auto; padding: 0 14px; }
+  .hero-proof { margin-top: 28px; }
+  .proof-item { padding: 12px 8px 12px 0; }
+  .proof-item + .proof-item { padding-left: 8px; }
+  .proof-item strong { font-size: 0.88rem; }
+  .proof-item span { font-size: 0.7rem; line-height: 1.35; }
+}
+
+@media (max-width: 640px) and (max-height: 700px) {
+  .hero {
+    height: calc(100svh - 92px);
+    min-height: 470px;
+  }
+  .hero-inner { padding-top: 20px; padding-bottom: 20px; }
+  .eyebrow { display: none; }
+  h1 { font-size: 2.25rem; }
+  .lead { margin-top: 12px; font-size: 0.9rem; line-height: 1.45; }
+  .actions { margin-top: 14px; }
+  .hero .button { min-height: 36px; font-size: 0.86rem; }
+  .hero-proof { margin-top: 18px; }
+  .proof-item { padding-top: 8px; padding-bottom: 8px; }
+  .proof-item span { display: none; }
+  #projects { padding-top: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .button,
+  .reveal { transition: none; }
 }
 </style>
 </head>
 <body>
 
-<nav class="nav">
+<nav class="nav" aria-label="Primary navigation">
   <div class="container nav-inner">
-    <a class="brand" href="#top">maomaoguai / 11suixing11</a>
+    <a class="brand" href="#top">kittydev / 11suixing11</a>
     <div class="nav-links">
-      <a href="#projects">项目</a>
-      <a href="#work">开源记录</a>
-      <a href="#notes">文章</a>
-      <a href="#contact">联系</a>
+      <a href="#projects">Projects</a>
+      <a href="#work">Upstream work</a>
+      <a href="#notes">Notes</a>
+      <a href="#contact">Contact</a>
     </div>
   </div>
 </nav>
 
 <main id="top">
   <section class="hero">
-    <div class="container hero-grid">
-      <div>
-        <span class="eyebrow">local-first tools and upstream fixes</span>
-        <h1>做本地优先工具，也给上游项目修小而具体的 bug。</h1>
-        <p class="lead">我维护几个面向真实使用场景的小工具：浏览器白板、学术写作流程、自我反思问卷。现在的重点是把项目边界讲清楚，把测试和文档补齐，并参与外部开源项目的日常维护。</p>
+    <canvas class="hero-canvas" id="review-graph" aria-hidden="true"></canvas>
+    <div class="container hero-inner">
+      <div class="hero-copy">
+        <span class="eyebrow">TypeScript · React · Canvas · upstream maintenance</span>
+        <h1>kittydev / 11suixing11</h1>
+        <p class="lead">I ship focused, testable fixes in open-source UI projects, currently concentrating on zimme-zoom and drawnix.</p>
         <div class="actions">
           <a class="button primary" href="https://github.com/11suixing11" target="_blank" rel="noopener">GitHub</a>
-          <a class="button" href="#work">最近开源记录</a>
+          <a class="button" href="#work">Selected merged work</a>
         </div>
+        <nav class="hero-proof" aria-label="Selected merged contribution evidence">
+          <a class="proof-item" href="https://github.com/kulcsarrudolf/zimme-zoom/pulls?q=is%3Apr+author%3A11suixing11+is%3Amerged" target="_blank" rel="noopener">
+            <strong>4 merged PRs</strong>
+            <span>with zimme-zoom</span>
+          </a>
+          <a class="proof-item" href="https://github.com/plait-board/drawnix/pull/449" target="_blank" rel="noopener">
+            <strong>#449</strong>
+            <span>two maintainer approvals</span>
+          </a>
+          <a class="proof-item" href="https://github.com/mdx-editor/editor/pull/952" target="_blank" rel="noopener">
+            <strong>#952</strong>
+            <span>merged editor regression</span>
+          </a>
+        </nav>
       </div>
-      <aside class="console" aria-label="Recent open source work">
-        <div class="console-head">
-          <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
-          <span>recent-work.log</span>
-        </div>
-        <div class="console-body">
-          <div class="console-line"><span class="console-key">drawnix</span><span>PR #449: middle mouse panning in freehand tools</span></div>
-          <div class="console-line"><span class="console-key">drawnix</span><span>PR #450: text style inlining for PNG export</span></div>
-          <div class="console-line"><span class="console-key">own repos</span><span>rewrote docs around attribution, integrity, and scope</span></div>
-          <div class="console-line"><span class="console-key">next</span><span>reduce test and lint debt in maintained projects</span></div>
-        </div>
-      </aside>
     </div>
   </section>
 
   <section id="projects">
     <div class="container">
-      <div class="section-head reveal">
+      <div class="section-head">
         <span class="section-label">Maintained Projects</span>
-        <h2>项目先讲边界，再讲功能。</h2>
-        <p class="section-copy">这些仓库不是拿来包装全能产品的。它们更像持续打磨中的工作台：目标明确、取舍明确、问题公开。</p>
+        <h2>Projects with explicit boundaries.</h2>
+        <p class="section-copy">These are maintained tools, not claims to cover every use case. Each project states what it does, what it leaves out, and where help is useful.</p>
       </div>
 
       <div class="project-grid">
@@ -502,32 +551,31 @@ footer {
         </article>
 
         <article class="card reveal">
-          <h3>Thesis Optimizer</h3>
-          <p>Academic writing assistant for clarity, citation hygiene, formatting, and auditable revision workflows. It explicitly avoids ghostwriting, plagiarism masking, and integrity shortcuts.</p>
+          <h3>Athena</h3>
+          <p>Self-hosted journaling and archive app. The useful core is simple: keep notes, attachments, and personal records on a server you control, then serve the web client from the same origin.</p>
           <div class="tag-row">
-            <span class="tag">Python</span>
-            <span class="tag">writing workflow</span>
-            <span class="tag">academic integrity</span>
-            <span class="tag">agents</span>
+            <span class="tag">TypeScript</span>
+            <span class="tag">Go</span>
+            <span class="tag">self-hosted</span>
+            <span class="tag">PWA</span>
           </div>
           <div class="card-links">
-            <a href="https://github.com/11suixing11/thesis-optimizer" target="_blank" rel="noopener">Repository</a>
-            <a href="https://github.com/11suixing11/thesis-optimizer/blob/main/ACADEMIC_INTEGRITY.md" target="_blank" rel="noopener">Integrity policy</a>
+            <a href="https://github.com/11suixing11/athena" target="_blank" rel="noopener">Repository</a>
           </div>
         </article>
 
         <article class="card reveal">
-          <h3>Quiz Platform</h3>
-          <p>100+ self-reflection quizzes and MBTI matching pages for personal insight and lightweight sharing. It is documented as a non-clinical product, not a diagnostic tool.</p>
+          <h3>OSS Maintenance</h3>
+          <p>Small upstream fixes in projects I actually read: accessibility behavior, test coverage, CI guardrails, type contracts, and bug paths that maintainers can review without a rewrite.</p>
           <div class="tag-row">
-            <span class="tag">Next.js</span>
-            <span class="tag">i18n</span>
-            <span class="tag">PWA</span>
-            <span class="tag">non-clinical</span>
+            <span class="tag">TypeScript</span>
+            <span class="tag">testing</span>
+            <span class="tag">a11y</span>
+            <span class="tag">CI</span>
           </div>
           <div class="card-links">
-            <a href="https://11suixing11.github.io/quiz-platform/" target="_blank" rel="noopener">Live demo</a>
-            <a href="https://github.com/11suixing11/quiz-platform" target="_blank" rel="noopener">Repository</a>
+            <a href="#work">Recent work</a>
+            <a href="https://github.com/11suixing11?tab=repositories" target="_blank" rel="noopener">GitHub</a>
           </div>
         </article>
       </div>
@@ -538,25 +586,25 @@ footer {
     <div class="container">
       <div class="section-head reveal">
         <span class="section-label">Maintainer Posture</span>
-        <h2>我希望项目经得起代码审查，也经得起动机审查。</h2>
+        <h2>Maintenance should survive both code review and intent review.</h2>
       </div>
 
       <div class="principle-grid">
         <div class="principle reveal">
-          <h3>清楚归因</h3>
-          <p>学习成熟工具的交互，但不把外部 PR 或设计语言包装成原创神迹。</p>
+          <h3>Clear attribution</h3>
+          <p>Learn from established projects without presenting shared interaction patterns as original invention.</p>
         </div>
         <div class="principle reveal">
-          <h3>边界优先</h3>
-          <p>本地优先工具不假装有云协作，AI 写作工具不服务学术不端。</p>
+          <h3>Boundaries first</h3>
+          <p>Local-first tools should not imply cloud collaboration, and experiments should not be marketed as finished products.</p>
         </div>
         <div class="principle reveal">
-          <h3>小 PR 可合并</h3>
-          <p>外部贡献优先选择可复现、可测试、可维护的小问题。</p>
+          <h3>Reviewable changes</h3>
+          <p>Upstream contributions start with a reproducible problem and stay small enough to review carefully.</p>
         </div>
         <div class="principle reveal">
-          <h3>债务公开</h3>
-          <p>测试失败、lint 基线、文档缺口会进入路线图，而不是藏在 README 的口号后面。</p>
+          <h3>Visible debt</h3>
+          <p>Test gaps, lint baselines, and known limitations belong in the record instead of behind broad claims.</p>
         </div>
       </div>
     </div>
@@ -566,24 +614,40 @@ footer {
     <div class="container">
       <div class="section-head reveal">
         <span class="section-label">Recent OSS Work</span>
-        <h2>最近在做的外部开源贡献。</h2>
-        <p class="section-copy">开源形象不是靠 profile 形容词堆出来的。更有说服力的是能被别人复查的 issue、PR、测试和维护讨论。</p>
+        <h2>Selected merged upstream work.</h2>
+        <p class="section-copy">Only merged work appears here. The useful evidence is the problem, the review trail, and the regression coverage.</p>
       </div>
 
       <div class="work-log">
         <article class="log-item reveal">
-          <div class="log-meta">plait-board/drawnix</div>
+          <div class="log-meta">kulcsarrudolf/zimme-zoom</div>
           <div>
-            <h3><a href="https://github.com/plait-board/drawnix/pull/449" target="_blank" rel="noopener">Fix middle mouse panning in freehand tools</a></h3>
-            <p>Freehand pen and eraser tools now only start drawing on the primary pointer button, allowing middle mouse panning to fall through to shared board behavior. Includes focused coverage.</p>
+            <h3><a href="https://github.com/kulcsarrudolf/zimme-zoom/pull/43" target="_blank" rel="noopener">Guard bundle size and tree shaking</a></h3>
+            <p>Added named bundle budgets for the public barrel and the Image-only import path, then followed through review, Node 20 compatibility, and documentation cleanup until merge.</p>
+          </div>
+        </article>
+
+        <article class="log-item reveal">
+          <div class="log-meta">kulcsarrudolf/zimme-zoom</div>
+          <div>
+            <h3><a href="https://github.com/kulcsarrudolf/zimme-zoom/pull/47" target="_blank" rel="noopener">Harden PhotoViewer portal accessibility</a></h3>
+            <p>Moved the viewer into a body portal, hid background content while open, restored focus safely, and answered every review thread with targeted regression coverage.</p>
           </div>
         </article>
 
         <article class="log-item reveal">
           <div class="log-meta">plait-board/drawnix</div>
           <div>
-            <h3><a href="https://github.com/plait-board/drawnix/pull/450" target="_blank" rel="noopener">Fix text style inlining for PNG export</a></h3>
-            <p>PNG export now inlines text container styles in the same path used for board image export, reducing multiline text clipping. Includes a regression test for the export options.</p>
+            <h3><a href="https://github.com/plait-board/drawnix/pull/449" target="_blank" rel="noopener">Fix middle-mouse panning in freehand tools</a></h3>
+            <p>Kept the pan gesture available while freehand tools are active, with interaction coverage refined through two maintainer reviews.</p>
+          </div>
+        </article>
+
+        <article class="log-item reveal">
+          <div class="log-meta">mdx-editor/editor</div>
+          <div>
+            <h3><a href="https://github.com/mdx-editor/editor/pull/952" target="_blank" rel="noopener">Respect configured heading shortcuts</a></h3>
+            <p>Moved heading-level publication into plugin initialization so Markdown shortcuts use the configured levels from their first render.</p>
           </div>
         </article>
       </div>
@@ -594,18 +658,18 @@ footer {
     <div class="container">
       <div class="section-head reveal">
         <span class="section-label">Notes</span>
-        <h2>写作也要像维护文档。</h2>
+        <h2>Notes should be maintained like documentation.</h2>
       </div>
 
       <div class="notes-list">
         <article class="note reveal">
           <h3><a href="blog/4deps.html">MindNotes Pro 的本地优先取舍</a></h3>
-          <p>一篇重新整理过的工程复盘：为什么做小依赖面、为什么不做云协作，以及如何尊重同类开源工具。</p>
-          <a href="blog/4deps.html">Read note</a>
+          <p>A Chinese engineering note on a small dependency surface, local-first boundaries, and respectful attribution.</p>
+          <a href="blog/4deps.html">Read the Chinese note</a>
         </article>
         <article class="note reveal">
-          <h3>接下来</h3>
-          <p>计划补更多维护日志：测试债务清理、外部 PR 复盘、AI 写作工具的安全边界。</p>
+          <h3>Next</h3>
+          <p>Future notes will cover review follow-up, Canvas input bugs, test debt, and decisions that changed after maintainer feedback.</p>
           <a href="https://github.com/11suixing11?tab=repositories" target="_blank" rel="noopener">Repositories</a>
         </article>
       </div>
@@ -615,7 +679,7 @@ footer {
 
 <footer id="contact">
   <div class="container footer-inner">
-    <span>2026 maomaoguai. Built as a static GitHub Pages site.</span>
+    <span>2026 kittydev / 11suixing11. Built as a static GitHub Pages site.</span>
     <div class="footer-links">
       <a href="https://github.com/11suixing11" target="_blank" rel="noopener">GitHub</a>
       <a href="mailto:1977717178@qq.com">1977717178@qq.com</a>
@@ -624,6 +688,159 @@ footer {
 </footer>
 
 <script>
+(function() {
+  var canvas = document.getElementById("review-graph");
+  var hero = canvas && canvas.parentElement;
+  var context = canvas && canvas.getContext("2d");
+  if (!canvas || !hero || !context) return;
+
+  var motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  var reduceMotion = motionQuery.matches;
+  var pointer = { x: -1000, y: -1000, active: false };
+  var frame = 0;
+  var resizeFrame = 0;
+  var width = 0;
+  var height = 0;
+  var dpr = 1;
+  var paths = [
+    { color: "#6fe1d1", label: "fix", y: 0.28, bend: -0.08, speed: 0.000045 },
+    { color: "#f0c866", label: "test", y: 0.50, bend: 0.10, speed: 0.000038 },
+    { color: "#ef746f", label: "review", y: 0.72, bend: -0.05, speed: 0.000033 }
+  ];
+
+  function cubicPoint(path, progress) {
+    var startX = width < 700 ? width * 0.42 : width * 0.48;
+    var endX = width * 1.04;
+    var startY = height * path.y;
+    var endY = height * (path.y + path.bend);
+    var c1x = startX + (endX - startX) * 0.30;
+    var c2x = startX + (endX - startX) * 0.70;
+    var c1y = startY + height * path.bend;
+    var c2y = endY - height * path.bend;
+    var inverse = 1 - progress;
+    return {
+      x: inverse * inverse * inverse * startX + 3 * inverse * inverse * progress * c1x + 3 * inverse * progress * progress * c2x + progress * progress * progress * endX,
+      y: inverse * inverse * inverse * startY + 3 * inverse * inverse * progress * c1y + 3 * inverse * progress * progress * c2y + progress * progress * progress * endY
+    };
+  }
+
+  function draw(time) {
+    context.setTransform(dpr, 0, 0, dpr, 0, 0);
+    context.clearRect(0, 0, width, height);
+    context.fillStyle = "#11171b";
+    context.fillRect(0, 0, width, height);
+
+    context.lineWidth = 1;
+    context.strokeStyle = "rgba(220, 235, 234, 0.055)";
+    for (var x = 0; x < width; x += 48) {
+      context.beginPath();
+      context.moveTo(x + 0.5, 0);
+      context.lineTo(x + 0.5, height);
+      context.stroke();
+    }
+    for (var y = 0; y < height; y += 48) {
+      context.beginPath();
+      context.moveTo(0, y + 0.5);
+      context.lineTo(width, y + 0.5);
+      context.stroke();
+    }
+
+    paths.forEach(function(path, pathIndex) {
+      var points = [];
+      for (var step = 0; step <= 60; step += 1) {
+        points.push(cubicPoint(path, step / 60));
+      }
+
+      context.beginPath();
+      points.forEach(function(point, index) {
+        if (index === 0) context.moveTo(point.x, point.y);
+        else context.lineTo(point.x, point.y);
+      });
+      context.strokeStyle = path.color;
+      context.globalAlpha = width < 700 ? 0.30 : 0.68;
+      context.lineWidth = 1.5;
+      context.setLineDash([8, 14]);
+      context.lineDashOffset = reduceMotion ? 0 : -time * path.speed * 200;
+      context.stroke();
+      context.setLineDash([]);
+
+      [0.08, 0.38, 0.68, 0.94].forEach(function(baseProgress, nodeIndex) {
+        var progress = (baseProgress + (reduceMotion ? 0 : time * path.speed)) % 1;
+        var point = cubicPoint(path, progress);
+        var dx = point.x - pointer.x;
+        var dy = point.y - pointer.y;
+        var distance = Math.sqrt(dx * dx + dy * dy);
+        if (pointer.active && distance < 110 && distance > 0) {
+          var force = (110 - distance) / 110;
+          point.x += dx / distance * force * 18;
+          point.y += dy / distance * force * 18;
+        }
+
+        context.globalAlpha = width < 700 ? (nodeIndex === 3 ? 0.58 : 0.44) : (nodeIndex === 3 ? 1 : 0.78);
+        context.fillStyle = path.color;
+        context.beginPath();
+        context.arc(point.x, point.y, nodeIndex === 3 ? 5 : 3.5, 0, Math.PI * 2);
+        context.fill();
+
+        if (nodeIndex === 3 && width >= 700) {
+          context.globalAlpha = 0.88;
+          context.fillStyle = "#dce7e6";
+          context.font = "12px Cascadia Code, Consolas, monospace";
+          var label = path.label + " → merge";
+          var labelX = Math.max(16, Math.min(point.x - 86, width - context.measureText(label).width - 16));
+          context.fillText(label, labelX, point.y - 14 - pathIndex * 2);
+        }
+      });
+    });
+
+    context.globalAlpha = 1;
+    if (!reduceMotion) frame = window.requestAnimationFrame(draw);
+  }
+
+  function resize() {
+    var rect = hero.getBoundingClientRect();
+    width = Math.max(1, Math.round(rect.width));
+    height = Math.max(1, Math.round(rect.height));
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    canvas.style.width = width + "px";
+    canvas.style.height = height + "px";
+    window.cancelAnimationFrame(frame);
+    draw(performance.now());
+  }
+
+  function scheduleResize() {
+    if (resizeFrame) return;
+    resizeFrame = window.requestAnimationFrame(function() {
+      resizeFrame = 0;
+      resize();
+    });
+  }
+
+  function handleMotionChange(event) {
+    reduceMotion = event.matches;
+    window.cancelAnimationFrame(frame);
+    frame = 0;
+    draw(performance.now());
+  }
+
+  hero.addEventListener("pointermove", function(event) {
+    var rect = hero.getBoundingClientRect();
+    pointer.x = event.clientX - rect.left;
+    pointer.y = event.clientY - rect.top;
+    pointer.active = true;
+  });
+  hero.addEventListener("pointerleave", function() { pointer.active = false; });
+  window.addEventListener("resize", scheduleResize);
+  if (typeof motionQuery.addEventListener === "function") {
+    motionQuery.addEventListener("change", handleMotionChange);
+  } else {
+    motionQuery.addListener(handleMotionChange);
+  }
+  resize();
+})();
+
 (function() {
   var items = document.querySelectorAll(".reveal");
   if (!("IntersectionObserver" in window)) {
