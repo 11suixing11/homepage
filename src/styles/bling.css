@@ -1,0 +1,228 @@
+/* ================================================
+   炫彩增强包 v3 · 马卡龙萌化（bling）
+   1. 站名 & 侧栏名字：马卡龙流光
+   2. 卡片：常驻淡彩虹描边 + 悬浮旋转满强度描边 + 光晕
+   3. 全屏马卡龙色雾背景（body::before，深浓浅淡）
+   4. 横幅流动光幕（#banner-wrapper::after）
+   5. 原生滚动条马卡龙渐变
+   6. 文本选区染色
+   7. 减弱动画偏好降级
+   色板：樱粉 #ff9ecf / 香芋紫 #c9a7ff / 天空蓝 #a7d8ff /
+         奶油黄 #ffe9a7 / 薄荷绿 #b0ecd4 / 蜜桃橙 #ffcf9e
+   ================================================ */
+
+/* ---------- 1. 站名 & 侧栏名字：马卡龙流光 ---------- */
+#navbar .card-base > a.btn-plain > div,
+#sidebar .font-bold.text-xl {
+  background-image: linear-gradient(
+    90deg,
+    #ff9ecf,
+    #ffcf9e,
+    #ffe9a7,
+    #b0ecd4,
+    #a7d8ff,
+    #c9a7ff,
+    #ff9ecf
+  );
+  background-size: 200% 100%;
+  background-repeat: repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  /* 只把文字染成透明，SVG 图标仍用 currentColor 正常显示 */
+  -webkit-text-fill-color: transparent;
+  animation: bling-flow 4s linear infinite;
+}
+
+@keyframes bling-flow {
+  to {
+    background-position: 200% center;
+  }
+}
+
+/* ---------- 2. 卡片：常驻淡描边 + 悬浮旋转描边 ---------- */
+@property --bling-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.card-base {
+  transition:
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+}
+
+.card-base::after {
+  content: "";
+  position: absolute;
+  inset: -1.5px;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--bling-angle),
+    #ff9ecf,
+    #ffcf9e,
+    #ffe9a7,
+    #b0ecd4,
+    #a7d8ff,
+    #c9a7ff,
+    #ff9ecf
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0.16; /* 常驻淡描边 */
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 2;
+}
+
+html.dark .card-base::after {
+  opacity: 0.24;
+}
+
+/* 顶栏常驻悬浮，描边会一直闪，排除掉 */
+#navbar .card-base::after {
+  content: none;
+}
+
+@media (hover: hover) {
+  .card-base:hover::after {
+    opacity: 0.95;
+    animation: bling-rotate 2.5s linear infinite;
+  }
+
+  .card-base:hover {
+    box-shadow:
+      0 12px 36px hsl(345 90% 70% / 0.3),
+      0 0 24px hsl(285 90% 75% / 0.16),
+      0 0 24px hsl(210 90% 70% / 0.12);
+  }
+}
+
+@keyframes bling-rotate {
+  to {
+    --bling-angle: 360deg;
+  }
+}
+
+/* ---------- 3. 全屏马卡龙色雾背景 ---------- */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -22%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(36% 40% at 18% 24%, hsl(330 90% 80% / 0.07), transparent 70%),
+    radial-gradient(32% 38% at 82% 20%, hsl(260 70% 82% / 0.07), transparent 70%),
+    radial-gradient(38% 42% at 72% 82%, hsl(200 85% 80% / 0.06), transparent 70%),
+    radial-gradient(28% 36% at 14% 86%, hsl(150 60% 82% / 0.06), transparent 70%);
+  animation: bling-mist 36s ease-in-out infinite alternate;
+}
+
+/* 深色模式下色雾更浓（奶油感发光） */
+html.dark body::before {
+  background:
+    radial-gradient(36% 40% at 18% 24%, hsl(330 90% 72% / 0.16), transparent 70%),
+    radial-gradient(32% 38% at 82% 20%, hsl(260 80% 72% / 0.15), transparent 70%),
+    radial-gradient(38% 42% at 72% 82%, hsl(200 90% 70% / 0.13), transparent 70%),
+    radial-gradient(28% 36% at 14% 86%, hsl(45 90% 70% / 0.11), transparent 70%);
+}
+
+@keyframes bling-mist {
+  0% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+
+  50% {
+    transform: translate(-2.5%, 2%) scale(1.06) rotate(1deg);
+  }
+
+  100% {
+    transform: translate(2%, -2.5%) scale(1.03) rotate(-1.5deg);
+  }
+}
+
+/* ---------- 4. 横幅流动光幕（马卡龙） ---------- */
+#banner-wrapper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background:
+    radial-gradient(42% 62% at 26% 42%, hsl(330 95% 78% / 0.2), transparent 70%),
+    radial-gradient(38% 58% at 74% 36%, hsl(265 85% 80% / 0.18), transparent 70%),
+    radial-gradient(48% 70% at 55% 82%, hsl(200 95% 78% / 0.14), transparent 70%);
+  animation: bling-curtain 22s ease-in-out infinite alternate;
+}
+
+@keyframes bling-curtain {
+  0% {
+    transform: translate(-2%, -1%) scale(1);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: translate(2%, 1.5%) scale(1.05);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(-1%, 2%) scale(1.02);
+    opacity: 0.85;
+  }
+}
+
+/* ---------- 5. 原生滚动条马卡龙渐变 ---------- */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  border: 2px solid var(--page-bg);
+  background: linear-gradient(
+    180deg,
+    #ff9ecf,
+    #ffcf9e,
+    #ffe9a7,
+    #b0ecd4,
+    #a7d8ff,
+    #c9a7ff
+  );
+}
+
+/* ---------- 6. 文本选区：樱粉染色 ---------- */
+::selection {
+  background: hsl(345 90% 72% / 0.35);
+}
+
+/* ---------- 7. 减弱动画偏好：关掉全部动画 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  #navbar .card-base > a.btn-plain > div,
+  #sidebar .font-bold.text-xl {
+    animation: none;
+  }
+
+  .card-base:hover::after {
+    animation: none;
+  }
+
+  body::before,
+  #banner-wrapper::after {
+    animation: none;
+  }
+}

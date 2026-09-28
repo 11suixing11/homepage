@@ -1,0 +1,264 @@
+---
+// 全局视觉特效 v3 · 马卡龙萌化：
+// 马卡龙色光点星尘 + 深色流星雨 + 鼠标粉紫光晕 + 点击爱心迸发 + 波纹
+// 挂在 Layout 的 body 层（swup 容器之外），页面切换后持续存活
+---
+
+<canvas id="bling-canvas" class="pointer-events-none fixed inset-0 z-0" aria-hidden="true"></canvas>
+
+<script>
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+  const canvas = document.getElementById('bling-canvas') as HTMLCanvasElement | null;
+
+  if (canvas && !reduced) {
+    const ctx = canvas.getContext('2d')!;
+    let w = 0;
+    let h = 0;
+    let lastT = 0;
+
+    const isDark = () => document.documentElement.classList.contains('dark');
+
+    /* ---------- 马卡龙色板（HSL 色相）：粉/桃/紫/蓝/薄荷 ---------- */
+    const MACARON_HUES = [335, 25, 265, 205, 155, 310];
+
+    /* ---------- 精灵预渲染 ---------- */
+    function makeSprite(hue: number, size = 128): HTMLCanvasElement {
+      const s = document.createElement('canvas');
+      s.width = size;
+      s.height = size;
+      const c = s.getContext('2d')!;
+      const r = size / 2;
+      const g = c.createRadialGradient(r, r, 0, r, r, r);
+      g.addColorStop(0, `hsla(${hue}, 90%, 78%, 1)`);
+      g.addColorStop(0.4, `hsla(${hue}, 90%, 74%, 0.35)`);
+      g.addColorStop(1, 'hsla(0, 0%, 0%, 0)');
+      c.fillStyle = g;
+      c.fillRect(0, 0, size, size);
+      return s;
+    }
+
+    /* ---------- 光点（星尘，马卡龙色） ---------- */
+    const N = isMobile ? 22 : 40;
+    const orbs: {
+      x: number; y: number; r: number;
+      vx: number; vy: number; phase: number;
+      twinkle: boolean; sprite: HTMLCanvasElement;
+    }[] = [];
+    for (let i = 0; i < N; i++) {
+      const r = 6 + Math.random() * 30;
+      orbs.push({
+        x: Math.random(),
+        y: Math.random(),
+        r,
+        vx: (Math.random() - 0.5) * 0.00016,
+        vy: (Math.random() - 0.5) * 0.00012,
+        phase: Math.random() * Math.PI * 2,
+        twinkle: r < 16, // 小光点做星尘闪烁
+        sprite: makeSprite(
+          MACARON_HUES[Math.floor(Math.random() * MACARON_HUES.length)]
+        ),
+      });
+    }
+
+    /* ---------- 鼠标彩色光晕（粉紫蓝轮转） ---------- */
+    const AURA_HUES = [335, 310, 285, 265, 235, 205];
+    const auraSprites = AURA_HUES.map((hh) => makeSprite(hh, 256));
+    const aura = {
+      x: -9999, y: -9999, tx: -9999, ty: -9999,
+      hue: 0, active: false,
+    };
+    if (!isMobile) {
+      window.addEventListener('pointermove', (e) => {
+        if (e.pointerType === 'touch') return;
+        aura.tx = e.clientX;
+        aura.ty = e.clientY;
+        if (!aura.active) {
+          aura.x = e.clientX;
+          aura.y = e.clientY;
+          aura.active = true;
+        }
+      });
+    }
+
+    /* ---------- 流星（仅深色模式，粉紫蓝） ---------- */
+    type Meteor = {
+      x: number; y: number; vx: number; vy: number;
+      life: number; maxLife: number; len: number; hue: number;
+    };
+    let meteors: Meteor[] = [];
+    let nextMeteorAt = 2500 + Math.random() * 4000;
+    const METEOR_HUES = [335, 285, 205, 25];
+
+    function spawnMeteor() {
+      const speed = 700 + Math.random() * 700;
+      const ang = (Math.PI / 180) * (16 + Math.random() * 24);
+      meteors.push({
+        x: Math.random() * w * 0.8,
+        y: Math.random() * h * 0.3,
+        vx: Math.cos(ang) * speed,
+        vy: Math.sin(ang) * speed,
+        life: 0,
+        maxLife: 0.7 + Math.random() * 0.7,
+        len: 100 + Math.random() * 140,
+        hue: METEOR_HUES[Math.floor(Math.random() * METEOR_HUES.length)],
+      });
+    }
+
+    /* ---------- 主循环 ---------- */
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = window.innerWidth;
+      h = window.innerHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function frame(t: number) {
+      const dt = Math.min((t - lastT) / 1000, 0.05) || 0.016;
+      lastT = t;
+      ctx.clearRect(0, 0, w, h);
+      const dark = isDark();
+
+      /* 鼠标光晕：色相随时间流转，lerp 平滑跟随 */
+      if (aura.active) {
+        aura.x += (aura.tx - aura.x) * 0.09;
+        aura.y += (aura.ty - aura.y) * 0.09;
+        aura.hue = (aura.hue + dt * 24) % (AURA_HUES.length * 300);
+        const sprite = auraSprites[Math.floor(aura.hue / 300) % AURA_HUES.length];
+        const R = dark ? 230 : 190;
+        ctx.globalAlpha = dark ? 0.13 : 0.08;
+        ctx.drawImage(sprite, aura.x - R, aura.y - R, R * 2, R * 2);
+      }
+
+      /* 光点漂浮 + 星尘闪烁 */
+      const base = dark ? 0.27 : 0.12;
+      for (const o of orbs) {
+        o.x = (o.x + o.vx + 1) % 1;
+        o.y = (o.y + o.vy + 1) % 1;
+        let a: number;
+        if (o.twinkle) {
+          a = base * (0.45 + 0.55 * Math.abs(Math.sin(t / 260 + o.phase * 9)));
+        } else {
+          a = base * (0.7 + 0.3 * Math.sin(t / 1500 + o.phase));
+        }
+        const R = o.r * (dark ? 1.1 : 1.4);
+        ctx.globalAlpha = a;
+        ctx.drawImage(o.sprite, o.x * w - R, o.y * h - R, R * 2, R * 2);
+      }
+
+      /* 流星雨（深色模式） */
+      if (dark) {
+        if (t >= nextMeteorAt) {
+          spawnMeteor();
+          nextMeteorAt = t + 3000 + Math.random() * 4500;
+        }
+        ctx.lineCap = 'round';
+        for (const m of meteors) {
+          m.x += m.vx * dt;
+          m.y += m.vy * dt;
+          m.life += dt;
+          const fade = Math.sin((Math.PI * m.life) / m.maxLife);
+          if (fade <= 0) continue;
+          const mag = Math.hypot(m.vx, m.vy);
+          const tx = m.x - (m.vx / mag) * m.len;
+          const ty = m.y - (m.vy / mag) * m.len;
+          const grad = ctx.createLinearGradient(m.x, m.y, tx, ty);
+          grad.addColorStop(0, `hsla(${m.hue}, 95%, 86%, ${0.9 * fade})`);
+          grad.addColorStop(1, 'hsla(0, 0%, 0%, 0)');
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = 2.2;
+          ctx.beginPath();
+          ctx.moveTo(m.x, m.y);
+          ctx.lineTo(tx, ty);
+          ctx.stroke();
+          // 流星头部光斑
+          ctx.globalAlpha = 0.5 * fade;
+          ctx.drawImage(makeSprite(m.hue, 64), m.x - 14, m.y - 14, 28, 28);
+        }
+        meteors = meteors.filter((m) => m.life < m.maxLife && m.x < w + 200 && m.y < h + 200);
+      }
+
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(frame);
+    }
+
+    resize();
+    window.addEventListener('resize', resize);
+    requestAnimationFrame(frame);
+  }
+
+  /* ================= 点击：爱心迸发 + 波纹 ================= */
+  // 马卡龙色板 + 亮粉描边（爱心用更饱和的粉色才醒目）
+  const COLORS = ['#ff7ab8', '#ffb38a', '#ffdd8a', '#8fe0b8', '#8ec5ff', '#c9a7ff'];
+
+  document.addEventListener('pointerdown', (e) => {
+    if (reduced) return;
+
+    // 双色扩散波纹环（粉 + 紫）
+    [COLORS[0], COLORS[5]].forEach((color, i) => {
+      const ring = document.createElement('span');
+      ring.style.cssText = [
+        'position:fixed',
+        `left:${e.clientX}px`,
+        `top:${e.clientY}px`,
+        'width:12px',
+        'height:12px',
+        'border-radius:50%',
+        `border:2px solid ${color}`,
+        'pointer-events:none',
+        'z-index:9999',
+      ].join(';');
+      document.body.appendChild(ring);
+      ring
+        .animate(
+          [
+            { transform: 'translate(-50%, -50%) scale(0.5)', opacity: 0.9 },
+            { transform: 'translate(-50%, -50%) scale(7)', opacity: 0 },
+          ],
+          { duration: 560, delay: i * 90, easing: 'cubic-bezier(.2,.7,.3,1)' }
+        )
+        .onfinish = () => ring.remove();
+    });
+
+    // 小爱心迸发（♥ + 文本变体选择符，防止被渲染成 emoji）
+    for (let i = 0; i < 16; i++) {
+      const s = document.createElement('span');
+      const color = COLORS[i % COLORS.length];
+      const size = 12 + Math.random() * 10;
+      s.style.cssText = [
+        'position:fixed',
+        `left:${e.clientX}px`,
+        `top:${e.clientY}px`,
+        `font-size:${size}px`,
+        'line-height:1',
+        'pointer-events:none',
+        'z-index:9999',
+        `color:${color}`,
+        `text-shadow:0 0 8px ${color}`,
+        'user-select:none',
+      ].join(';');
+      s.textContent = '\u2665\uFE0E';
+      document.body.appendChild(s);
+      const ang = Math.random() * Math.PI * 2;
+      const dist = 46 + Math.random() * 84;
+      const dx = Math.cos(ang) * dist;
+      const dy = Math.sin(ang) * dist + 18; // 稍微向下坠
+      const spin = (Math.random() - 0.5) * 360;
+      s.animate(
+        [
+          { transform: 'translate(-50%, -50%) scale(0.6) rotate(0deg)', opacity: 1 },
+          {
+            transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(0.2) rotate(${spin}deg)`,
+            opacity: 0,
+          },
+        ],
+        { duration: 620 + Math.random() * 320, easing: 'cubic-bezier(.2,.7,.3,1)' }
+      ).onfinish = () => s.remove();
+    }
+  });
+</script>
