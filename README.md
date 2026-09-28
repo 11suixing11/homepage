@@ -1,6 +1,6 @@
 # myblog
 
-基于 [Astro](https://astro.build) + [Fuwari](https://github.com/saicaca/fuwari) 主题的个人博客。
+基于 [Astro](https://astro.build) + [Fuwari](https://github.com/saicaca/fuwari) 主题的个人博客，绑定 GitHub 账号 [@11suixing11](https://github.com/11suixing11) 与个人主页 <https://11suixing11.github.io/homepage/>。
 设计参考：[hongshi.cc.cd](https://hongshi.cc.cd/)（Hexo Solitude 风格）。
 
 ## 常用命令（用 pnpm，模板 preinstall 强制）
@@ -44,6 +44,13 @@ draft: false
 | `src/assets/images/` | 头像（demo-avatar.png）、横幅图 |
 | `astro.config.mjs` | site 域名（部署前必改） |
 | `.backup-v0.1.0/` | 旧自建框架备份，确认不需要后可删 |
+
+## 身份与部署
+
+站点身份统一由 `src/config.ts` 的 `ownerConfig` 提供，GitHub 主页链接、作者元数据、JSON-LD `sameAs`、`rel="me"`、RSS 和关于页共用这一份来源。
+
+推送到 `main` 后，`.github/workflows/deploy.yml` 会构建并部署到 GitHub Pages：
+<https://11suixing11.github.io/homepage/>
 
 ## 站内功能
 

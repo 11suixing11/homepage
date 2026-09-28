@@ -6,7 +6,7 @@ import "@fontsource/roboto/700.css";
 import ConfigCarrier from "@components/ConfigCarrier.astro";
 import Effects from "@components/Effects.astro";
 import "../styles/bling.css";
-import { profileConfig, siteConfig } from "@/config";
+import { ownerConfig, profileConfig, siteConfig } from "@/config";
 import {
 	AUTO_MODE,
 	BANNER_HEIGHT,
@@ -56,6 +56,18 @@ if (title) {
 	pageTitle = `${siteConfig.title} - ${siteConfig.subtitle}`;
 }
 
+const canonicalUrl = Astro.url.href;
+const rssUrl = new URL(url("rss.xml"), ownerConfig.siteOrigin).href;
+const personJsonLd = {
+	"@context": "https://schema.org",
+	"@type": "Person",
+	name: profileConfig.name,
+	alternateName: ownerConfig.handle,
+	url: ownerConfig.siteUrl,
+	image: ownerConfig.avatarUrl,
+	sameAs: [ownerConfig.githubUrl],
+};
+
 const favicons: Favicon[] =
 	siteConfig.favicon.length > 0 ? siteConfig.favicon : defaultFavicons;
 
@@ -84,12 +96,17 @@ const bannerOffset =
 
 		<meta charset="UTF-8" />
 		<meta name="description" content={description || pageTitle}>
-		<meta name="author" content={profileConfig.name}>
+		<meta name="author" content={`${profileConfig.name} (@${ownerConfig.handle})`}>
+		<link rel="canonical" href={canonicalUrl}>
+		<link rel="author" href={ownerConfig.githubUrl}>
+		<link rel="me" href={ownerConfig.githubUrl}>
+		<script is:inline type="application/ld+json" set:html={JSON.stringify(personJsonLd)}></script>
 
 		<meta property="og:site_name" content={siteConfig.title}>
-		<meta property="og:url" content={Astro.url}>
+		<meta property="og:url" content={canonicalUrl}>
 		<meta property="og:title" content={pageTitle}>
 		<meta property="og:description" content={description || pageTitle}>
+		<meta property="profile:username" content={ownerConfig.handle}>
 		{setOGTypeArticle ? (
         <meta property="og:type" content="article" />
         ) : (
@@ -97,7 +114,7 @@ const bannerOffset =
         )}
 
 		<meta name="twitter:card" content="summary_large_image">
-		<meta property="twitter:url" content={Astro.url}>
+		<meta property="twitter:url" content={canonicalUrl}>
 		<meta name="twitter:title" content={pageTitle}>
 		<meta name="twitter:description" content={description || pageTitle}>
 
@@ -147,7 +164,7 @@ const bannerOffset =
 
 		<slot name="head"></slot>
 
-		<link rel="alternate" type="application/rss+xml" title={profileConfig.name} href={`${Astro.site}rss.xml`}/>
+		<link rel="alternate" type="application/rss+xml" title={`${profileConfig.name} (@${ownerConfig.handle})`} href={rssUrl}/>
 
 	</head>
 	<body class=" min-h-screen transition " class:list={[{"lg:is-home": isHomePage, "enable-banner": enableBanner}]}

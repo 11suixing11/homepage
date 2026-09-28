@@ -7,8 +7,19 @@ import type {
 } from "./types/config";
 import { LinkPreset } from "./types/config";
 
+const siteOrigin = "https://11suixing11.github.io";
+
+export const ownerConfig = {
+	name: "Yuki",
+	handle: "11suixing11",
+	githubUrl: "https://github.com/11suixing11",
+	siteOrigin,
+	siteUrl: `${siteOrigin}/homepage/`,
+	avatarUrl: "https://github.com/11suixing11.png",
+};
+
 export const siteConfig: SiteConfig = {
-	title: "Yuki's Blog",
+	title: `${ownerConfig.name}'s Blog`,
 	subtitle: "一个关于技术与生活的小站",
 	lang: "zh_CN", // Language code, e.g. 'en', 'zh_CN', 'ja', etc.
 	themeColor: {
@@ -46,23 +57,24 @@ export const navBarConfig: NavBarConfig = {
 		LinkPreset.About,
 		{
 			name: "GitHub",
-			url: "https://github.com", // TODO: 换成你自己的 GitHub 主页
+			url: ownerConfig.githubUrl,
 			external: true, // Show an external link icon and will open in a new tab
 		},
 	],
 };
 
 export const profileConfig: ProfileConfig = {
-	avatar: "assets/images/demo-avatar.png", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
-	name: "Yuki",
-	bio: "一个关于技术与生活的小站。",
+	avatar: "assets/images/github-avatar.png", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
+	name: ownerConfig.name,
+	handle: ownerConfig.handle,
+	bio: "TypeScript、React、Canvas 交互与可维护 UI 的开源实践者。",
 	links: [
 		{
 			name: "GitHub",
 			icon: "fa6-brands:github", // Visit https://icones.js.org/ for icon codes
 			// You will need to install the corresponding icon set if it's not already included
 			// `pnpm add @iconify-json/<icon-set-name>`
-			url: "https://github.com", // TODO: 换成你自己的 GitHub 主页
+			url: ownerConfig.githubUrl,
 		},
 	],
 };
