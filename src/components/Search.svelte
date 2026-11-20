@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Snippet } from "svelte";
+	import { onMount, type Snippet } from "svelte";
 	import type { SearchResult } from "@/global";
 	import { url } from "../utils/url-utils";
 
@@ -11,10 +11,13 @@
 	let { label, searchIcon, closeIcon }: { label: string; searchIcon?: Snippet; closeIcon?: Snippet } = $props();
 	let dialog: HTMLDialogElement;
 	let searchField: HTMLInputElement;
+	let ready = $state(false);
 	let results = $state<SearchResult[]>([]);
 	let message = $state("");
 	let indexPromise: Promise<PagefindIndex> | undefined;
 	let requestId = 0;
+
+	onMount(() => { ready = true; });
 
 	function loadIndex() {
 		indexPromise ??= import(/* @vite-ignore */ url("/pagefind/pagefind.js"))
@@ -62,7 +65,7 @@
 	}
 </script>
 
-<button class="btn-plain search-button" type="button" aria-label={label} aria-haspopup="dialog" onclick={openSearch}>
+<button class="btn-plain search-button" type="button" aria-label={label} aria-haspopup="dialog" disabled={!ready} onclick={openSearch}>
 	{@render searchIcon?.()}
 </button>
 
@@ -93,6 +96,7 @@
 
 <style>
 	.search-button { width: 2.75rem; height: 2.75rem; border-radius: 0.55rem; font-size: 1.25rem; }
+	.search-button:disabled { cursor: progress; opacity: 0.6; }
 	.site-search {
 		position: fixed;
 		inset: clamp(2rem, 12vh, 6rem) 0 auto;
