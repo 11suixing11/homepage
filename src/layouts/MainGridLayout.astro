@@ -13,9 +13,10 @@ interface Props {
 	lang?: string;
 	setOGTypeArticle?: boolean;
 	headings?: MarkdownHeading[];
+	landing?: boolean;
 }
 
-const { title, description, lang, setOGTypeArticle, headings = [] } = Astro.props;
+const { title, description, lang, setOGTypeArticle, headings = [], landing = false } = Astro.props;
 const showToc = siteConfig.toc.enable && headings.length > 0;
 ---
 
@@ -23,7 +24,7 @@ const showToc = siteConfig.toc.enable && headings.length > 0;
 	<slot name="head" slot="head" />
 	<a class="skip-link" href="#swup-container">跳到正文</a>
 	<Navbar />
-	<main id="swup-container" class:list={["site-shell site-main transition-swup-fade", { "site-reader": showToc }]} tabindex="-1">
+	<main id="swup-container" class:list={["site-main transition-swup-fade", landing ? "site-landing" : "site-shell", { "site-reader": showToc }]} tabindex="-1">
 		<div class="site-main-content"><slot /></div>
 		{showToc && (
 			<aside class="reader-toc" aria-label="文章目录">

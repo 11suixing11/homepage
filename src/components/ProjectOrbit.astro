@@ -1,0 +1,269 @@
+---
+import { Icon } from "astro-icon/components";
+import { featuredProjects } from "../content/portfolio";
+import OrbitGlobe from "./OrbitGlobe.astro";
+
+const total = String(featuredProjects.length).padStart(2, "0");
+---
+
+<project-orbit class="project-orbit" data-active={featuredProjects[0]?.color}>
+	<div class="scene">
+		<h2 class="scene-label"><span aria-hidden="true"></span> 项目星图</h2>
+		<button type="button" class="orbit-button motion-control" data-orbit-motion aria-label="暂停轨道动画" hidden>
+			<Icon name="fa6-solid:pause" class="pause-icon" aria-hidden="true" />
+			<Icon name="fa6-solid:play" class="play-icon" aria-hidden="true" />
+		</button>
+		<OrbitGlobe />
+	</div>
+	<div class="orbit-deck">
+		<div class="orbit-panels" id="orbit-panels">
+			{featuredProjects.map((project, index) => (
+				<article class="orbit-panel" data-orbit-panel data-tint={project.color} data-name={project.name} hidden={index !== 0}>
+					<div class="panel-heading">
+						<span class="panel-icon"><Icon name={project.icon} aria-hidden="true" /></span>
+						<div>
+							<p class="panel-stack">{project.stack.join(" · ")}</p>
+							<h3>{project.name}</h3>
+						</div>
+					</div>
+					<p class="panel-description">{project.description}</p>
+					<a class="panel-link" href={project.primary.href}>
+						{project.primary.label} <Icon name="fa6-solid:arrow-up-right-from-square" aria-hidden="true" />
+					</a>
+				</article>
+			))}
+		</div>
+		<div class="orbit-pager" data-orbit-controls role="group" aria-label="切换精选项目" hidden>
+			<span class="orbit-counter" aria-hidden="true"><strong data-orbit-index>01</strong><span> / {total}</span></span>
+			<button class="orbit-button" type="button" data-orbit-prev aria-label="上一个项目" aria-controls="orbit-panels">
+				<Icon name="fa6-solid:arrow-left" aria-hidden="true" />
+			</button>
+			<button class="orbit-button" type="button" data-orbit-next aria-label="下一个项目" aria-controls="orbit-panels">
+				<Icon name="fa6-solid:arrow-right" aria-hidden="true" />
+			</button>
+		</div>
+		<p class="sr-only" role="status" data-orbit-status></p>
+	</div>
+</project-orbit>
+
+<script>
+	let motionPaused = false;
+
+	class ProjectOrbit extends HTMLElement {
+		private onDisconnect?: () => void;
+
+		connectedCallback() {
+			const panels = [...this.querySelectorAll<HTMLElement>("[data-orbit-panel]")];
+			const controls = this.querySelector<HTMLElement>("[data-orbit-controls]");
+			const prev = this.querySelector<HTMLButtonElement>("[data-orbit-prev]");
+			const next = this.querySelector<HTMLButtonElement>("[data-orbit-next]");
+			const motion = this.querySelector<HTMLButtonElement>("[data-orbit-motion]");
+			const counter = this.querySelector<HTMLElement>("[data-orbit-index]");
+			const status = this.querySelector<HTMLElement>("[data-orbit-status]");
+			if (!panels.length || !controls || !prev || !next || !motion || !counter || !status) return;
+
+			this.onDisconnect?.();
+			const controller = new AbortController();
+			const { signal } = controller;
+			const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+			let visible = false;
+			let active = 0;
+			let transition: Animation | undefined;
+
+			const updateMotion = () => {
+				motion.hidden = reduced.matches;
+				motion.setAttribute("aria-label", motionPaused ? "播放轨道动画" : "暂停轨道动画");
+				this.toggleAttribute("data-paused", motionPaused);
+				this.toggleAttribute("data-running", visible && !motionPaused && !reduced.matches && !document.hidden);
+			};
+			const observer = new IntersectionObserver(([entry]) => {
+				visible = entry.isIntersecting;
+				updateMotion();
+			});
+			observer.observe(this.querySelector(".scene") ?? this);
+			reduced.addEventListener("change", () => {
+				if (reduced.matches) transition?.cancel();
+				updateMotion();
+			}, { signal });
+			document.addEventListener("visibilitychange", updateMotion, { signal });
+			motion.addEventListener("click", () => {
+				motionPaused = !motionPaused;
+				updateMotion();
+			}, { signal });
+
+			const select = (position: number, announce = true) => {
+				const index = (position + panels.length) % panels.length;
+				if (announce && index === active) return;
+				const direction = position < active ? -1 : 1;
+				active = index;
+				const panel = panels[active];
+				for (const item of panels) item.hidden = item !== panel;
+				this.dataset.active = panel.dataset.tint;
+				counter.textContent = String(active + 1).padStart(2, "0");
+				if (!announce) return;
+				status.textContent = `项目 ${active + 1} / ${panels.length}：${panel.dataset.name}`;
+				transition?.cancel();
+				if (!reduced.matches) {
+					transition = panel.animate(
+						[{ opacity: 0.35, transform: `translateX(${12 * direction}px)` }, { opacity: 1, transform: "none" }],
+						{ duration: 280, easing: "cubic-bezier(.2,.68,.25,1)" },
+					);
+				}
+			};
+
+			if (panels.length > 1) {
+				controls.hidden = false;
+				prev.addEventListener("click", () => select(active - 1), { signal });
+				next.addEventListener("click", () => select(active + 1), { signal });
+				controls.addEventListener("keydown", (event) => {
+					let target: number;
+					switch (event.key) {
+						case "ArrowLeft": target = active - 1; break;
+						case "ArrowRight": target = active + 1; break;
+						case "Home": target = 0; break;
+						case "End": target = panels.length - 1; break;
+						default: return;
+					}
+					event.preventDefault();
+					select(target);
+				}, { signal });
+			}
+			select(0, false);
+			updateMotion();
+
+			this.onDisconnect = () => {
+				controller.abort();
+				observer.disconnect();
+				transition?.cancel();
+				this.removeAttribute("data-running");
+			};
+		}
+
+		disconnectedCallback() {
+			this.onDisconnect?.();
+			this.onDisconnect = undefined;
+		}
+	}
+
+	if (!customElements.get("project-orbit")) customElements.define("project-orbit", ProjectOrbit);
+</script>
+
+<style>
+	.project-orbit {
+		display: block;
+		min-width: 0;
+		position: relative;
+		--orbit-ink: #f5f0ff;
+		--orbit-muted: #c5b8df;
+		--orbit-ring: #ba9bf7;
+	}
+
+	.scene { position: relative; }
+	.scene-label {
+		position: absolute;
+		top: 0.85rem;
+		left: clamp(0.35rem, 4.4vw, 3.6rem);
+		z-index: 1;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.65rem;
+		color: #e3d6fd;
+		font-size: 0.875rem;
+		font-weight: 600;
+		letter-spacing: .11em;
+	}
+	.scene-label > span { width: 0.5rem; height: 0.5rem; background: #bf9dff; transform: rotate(45deg); box-shadow: 0 0 14px #9c66fb; }
+
+	.orbit-deck {
+		position: relative;
+		isolation: isolate;
+		margin: -3.25rem clamp(0.5rem, 3vw, 2.2rem) 0;
+		padding: 1.12rem 1.25rem;
+		border: 1px solid #4a356c;
+		border-radius: 1.25rem;
+		background: linear-gradient(126deg, #211637, #171129);
+		color: var(--orbit-ink);
+		box-shadow: 0 1.4rem 3.2rem #03010c80;
+	}
+	.orbit-deck::before, .orbit-deck::after {
+		position: absolute;
+		z-index: -1;
+		top: 100%;
+		left: 1rem;
+		right: 1rem;
+		height: 0.44rem;
+		content: "";
+		border: 1px solid #4a356c;
+		border-top: 0;
+		border-radius: 0 0 0.9rem 0.9rem;
+		background: #1b122f;
+	}
+	.orbit-deck::after { top: calc(100% + 0.42rem); left: 2rem; right: 2rem; background: #130d22; border-color: #392751; }
+
+	.orbit-panels { display: grid; }
+	.orbit-panel { display: block; grid-area: 1 / 1; min-width: 0; }
+	/* Hidden slides still size the grid so switching projects never shifts the page. */
+	.orbit-panel[hidden] { display: block; visibility: hidden; }
+	.panel-heading { display: flex; align-items: center; gap: 0.8rem; }
+	.panel-icon {
+		flex: none;
+		width: 2.55rem;
+		height: 2.55rem;
+		display: grid;
+		place-items: center;
+		border-radius: 0.7rem;
+		border: 1px solid #664ba1;
+		background: #2c1e4b;
+		color: #e1ceff;
+		font-size: 1rem;
+	}
+	.panel-stack { color: var(--orbit-muted); font: .67rem/1.35 var(--site-mono); }
+	.panel-heading h3 { margin-top: .14rem; font-size: clamp(1.05rem, 1.9vw, 1.45rem); font-weight: 700; line-height: 1.3; }
+	.panel-description { color: var(--orbit-muted); font-size: .875rem; line-height: 1.65; margin-top: .65rem; }
+	.panel-link { color: #decaff; display: inline-flex; align-items: center; gap: .45rem; font-weight: 700; font-size: .85rem; min-height: 2.75rem; }
+	.panel-link svg { font-size: .7rem; }
+	.panel-link:hover { color: white; text-decoration: underline; text-underline-offset: .2em; }
+
+	.orbit-pager { display: flex; align-items: center; gap: .48rem; padding-top: .6rem; border-top: 1px solid #423254; }
+	.orbit-pager[hidden], .motion-control[hidden] { display: none; }
+	.orbit-counter { color: var(--orbit-muted); margin-right: auto; font: .8rem var(--site-mono); }
+	.orbit-counter strong { color: var(--orbit-ink); font-weight: 700; }
+	.orbit-button {
+		display: inline-grid;
+		place-items: center;
+		width: 2.75rem;
+		height: 2.75rem;
+		border: 1px solid #68518a;
+		border-radius: 50%;
+		color: var(--orbit-ink);
+		font-size: .92rem;
+		background: #1a122b;
+		transition: background-color .22s, border-color .22s;
+	}
+	.orbit-button:hover { background: #352054; border-color: #b192e8; }
+	.motion-control { position: absolute; z-index: 1; top: .1rem; right: clamp(0.35rem, 4.4vw, 3.6rem); font-size: .72rem; }
+	.motion-control .play-icon, .project-orbit[data-paused] .pause-icon { display: none; }
+	.project-orbit[data-paused] .play-icon { display: block; }
+	.orbit-button:focus-visible, .panel-link:focus-visible { outline-color: var(--orbit-ring); }
+
+	@media (max-width: 920px) {
+		.orbit-deck { margin-inline: 0; margin-top: -2.25rem; }
+	}
+	@media (max-width: 760px) {
+		.project-orbit { max-width: 36rem; width: 100%; margin-inline: auto; }
+		.scene-label, .motion-control { inset-inline-start: 0; }
+		.motion-control { inset-inline-start: auto; inset-inline-end: 0; }
+	}
+	@media (min-width: 320px) and (max-width: 590px) {
+		.orbit-pager { position: absolute; inset-inline-end: 1.25rem; inset-block-end: 1.12rem; border-top: 0; padding-top: 0; }
+		.orbit-counter { margin-inline-end: .25rem; }
+		.panel-link { margin-top: .45rem; }
+	}
+	@media (max-width: 410px) {
+		.orbit-deck { padding: 1rem; margin-top: -1.5rem; }
+		.orbit-pager { inset-inline-end: 1rem; inset-block-end: 1rem; }
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.orbit-button { transition: none; }
+	}
+</style>

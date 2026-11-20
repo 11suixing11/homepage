@@ -22,7 +22,7 @@ export const siteConfig: SiteConfig = {
 	title: `${ownerConfig.name} 的工程笔记`,
 	subtitle: "开源项目、实现取舍与开发记录",
 	lang: "zh_CN",
-	themeColor: { hue: 150, fixed: false },
+	themeColor: { hue: 295, fixed: false },
 	banner: {
 		enable: false,
 		src: "assets/images/banner.png",

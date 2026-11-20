@@ -1,26 +1,29 @@
 :root {
     color-scheme: light;
-    --page-bg: #f6f5ee;
-    --card-bg: #fffef9;
+    --page-bg: #f7f5fb;
+    --card-bg: #fffdfd;
     --primary: oklch(0.43 0.105 var(--hue));
-    --site-ink: #1b2921;
-    --site-muted: #526158;
-    --site-border: #d9ded2;
-    --site-hover: #edf0e7;
-    --site-lime: #d7f58c;
+    --site-ink: #221b30;
+    --site-muted: #5d536d;
+    --site-border: #e1d8ec;
+    --site-hover: #eeebf7;
+    --launch-bg: #0c0817;
+    --launch-ink: #faf4ff;
+    --launch-muted: #c7bad9;
+    --launch-accent: #d3b5ff;
     --site-width: 75rem;
     --site-mono: "JetBrains Mono Variable", ui-monospace, Consolas, monospace;
 }
 
 :root.dark {
     color-scheme: dark;
-    --page-bg: #161e19;
-    --card-bg: #202a24;
+    --page-bg: #14101d;
+    --card-bg: #1e1729;
     --primary: oklch(0.82 0.13 var(--hue));
-    --site-ink: #edf3e8;
-    --site-muted: #b3c1b6;
-    --site-border: #3a4a3f;
-    --site-hover: #29372d;
+    --site-ink: #f0e9fa;
+    --site-muted: #c0b3cf;
+    --site-border: #41344f;
+    --site-hover: #2a2037;
 }
 
 html { scroll-padding-top: 1.5rem; }
@@ -42,6 +45,27 @@ body {
 }
 
 .site-main { margin-top: clamp(1.35rem, 3vw, 2.1rem); }
+.site-main.site-landing { margin-top: 0; }
+
+/* The shared header follows the landing page without changing the reader's color mode. */
+body:has(.site-landing) .site-header {
+    background: var(--launch-bg);
+    border-color: #30243e;
+    color: var(--launch-ink);
+}
+body:has(.site-landing) .site-header .brand-period { color: var(--launch-accent); }
+body:has(.site-landing) .site-header .site-nav a { color: var(--launch-muted); }
+body:has(.site-landing) .site-header .site-nav a:is(:hover, [aria-current="page"]) {
+    background: #281d39;
+    color: var(--launch-ink);
+}
+body:has(.site-landing) .site-toolbar :is([aria-haspopup="dialog"], #scheme-switch, .toolbar-button, .toolbar-github) {
+    color: var(--launch-ink);
+}
+body:has(.site-landing) .site-toolbar .toolbar-github:hover { background: #281d39; }
+body:has(.site-landing) .site-header :is(.site-brand, .site-nav a, [aria-haspopup="dialog"], #scheme-switch, .toolbar-button, .toolbar-github):focus-visible {
+    outline-color: var(--launch-accent);
+}
 
 .site-heading { margin-bottom: clamp(1.6rem, 4vw, 2.75rem); }
 .site-heading h1 {

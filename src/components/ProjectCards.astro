@@ -92,6 +92,11 @@ import { featuredProjects } from "../content/portfolio";
 		padding-top: 0.875rem;
 	}
 
+	@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+		.project-card { transition: transform .24s ease-out, box-shadow .24s ease-out; }
+		.project-card:hover { transform: translateY(-.25rem); box-shadow: 0 .9rem 1.7rem rgb(39 23 64 / 9%); }
+	}
+
 	@media (max-width: 700px) {
 		.project-grid { grid-template-columns: minmax(0, 1fr); }
 	}

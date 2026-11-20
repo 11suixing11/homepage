@@ -17,6 +17,7 @@ const { page } = Astro.props;
 ---
 
 <MainGridLayout
+	landing={page.currentPage === 1}
 	title={page.currentPage === 1 ? undefined : `文章 · 第 ${page.currentPage} 页`}
 	description="core（@11suixing11）的个人博客，记录本地工具、浏览器白板、在线评测和开源开发。"
 >

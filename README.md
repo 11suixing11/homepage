@@ -29,7 +29,7 @@ pnpm run preview
 
 执行 `pnpm run new-post` 生成 Markdown 骨架。文件名决定文章地址，`published` 决定排序，分类和标签可在文章归档中筛选。草稿用 `draft: true` 标记。文章支持 KaTeX、提示框和代码高亮。
 
-首页白板预览取自 [MindNotes Pro](https://github.com/11suixing11/mindnotes-pro)。
+首页项目星图由本站代码生成 SVG；项目切换读取同一份项目资料，不请求外部接口。视觉灵感来自 [Remit Race](https://motionsites.ai/?prompt=remit-race)，未使用其素材。
 
 ## 部署
 

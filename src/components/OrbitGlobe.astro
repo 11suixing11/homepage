@@ -1,0 +1,166 @@
+---
+// Project the visible half of a Fibonacci sphere into a small, static SVG.
+const cx = 304;
+const cy = 200;
+const radius = 146;
+const samples = 2300;
+const step = Math.PI * (3 - Math.sqrt(5));
+const pointLayers: string[][] = [[], [], [], [], []];
+const round = (value: number) => value.toFixed(1);
+
+for (let i = 0; i < samples; i++) {
+	const y = 1 - (2 * (i + 0.5)) / samples;
+	const horizontal = Math.sqrt(1 - y * y);
+	const azimuth = i * step;
+	const x = Math.sin(azimuth) * horizontal;
+	const z = Math.cos(azimuth) * horizontal;
+	if (z < 0) continue;
+
+	const terrain =
+		Math.sin(x * 8.5 + z * 3.4 + y * 3.8) +
+		Math.sin(z * 5.7 - y * 9.1 + x * 1.1) * 0.73 +
+		Math.sin(y * 16.1 + x * 11.3 - z * 4.4) * 0.31;
+	const light = -x * 0.5 + y * 0.36 + z * 0.44;
+	const tier = terrain < 0.13 ? 0 : terrain < 0.6 ? 1 : light < 0.22 ? 2 : light < 0.64 ? 3 : 4;
+	pointLayers[tier].push(`M${round(cx + x * radius)} ${round(cy - y * radius)}h.01`);
+}
+
+const starLayers: string[][] = [[], [], []];
+for (let i = 1; i <= 96; i++) {
+	const x = 22 + ((i * 179) % 565);
+	const y = 16 + ((i * i * 83 + i * 37) % 356);
+	if (Math.hypot(x - cx, y - cy) > radius + 16) {
+		starLayers[i % 3].push(`M${x} ${y}h.01`);
+	}
+}
+
+const tilt = -21;
+const trackRx = 229;
+const trackRy = 76;
+const track = `M ${cx - trackRx} ${cy} a ${trackRx} ${trackRy} 0 1 1 ${2 * trackRx} 0 a ${trackRx} ${trackRy} 0 1 1 ${-2 * trackRx} 0`;
+const front = `M ${cx + trackRx} ${cy} a ${trackRx} ${trackRy} 0 0 1 ${-2 * trackRx} 0`;
+const tiltRad = (tilt * Math.PI) / 180;
+const pins = [
+	{ degrees: 138, label: "01", tint: "mint" },
+	{ degrees: 308, label: "02", tint: "lavender" },
+	{ degrees: 29, label: "03", tint: "sand" },
+].map((pin) => {
+	const angle = (pin.degrees * Math.PI) / 180;
+	const x = Math.cos(angle) * trackRx;
+	const y = Math.sin(angle) * trackRy;
+	return { ...pin, x: cx + x * Math.cos(tiltRad) - y * Math.sin(tiltRad), y: cy + x * Math.sin(tiltRad) + y * Math.cos(tiltRad) };
+});
+---
+
+<svg class="globe" viewBox="0 0 608 415" aria-hidden="true" focusable="false">
+	<defs>
+		<radialGradient id="core-orbit-halo">
+			<stop stop-color="#6234fa" stop-opacity=".65" />
+			<stop offset=".56" stop-color="#4c27ba" stop-opacity=".35" />
+			<stop offset="1" stop-color="#4c27ba" stop-opacity="0" />
+		</radialGradient>
+		<radialGradient id="core-orbit-surface" cx="37%" cy="34%" r="71%" fx="31%" fy="23%">
+			<stop stop-color="#372075" />
+			<stop offset=".45" stop-color="#1c1048" />
+			<stop offset=".83" stop-color="#100a2b" />
+			<stop offset=".96" stop-color="#321d71" />
+			<stop offset="1" stop-color="#5031a0" />
+		</radialGradient>
+		<linearGradient id="core-orbit-rim" x1="12%" y1="5%" x2="80%" y2="94%">
+			<stop stop-color="#e3d8ff" />
+			<stop offset=".29" stop-color="#ae8aff" />
+			<stop offset=".6" stop-color="#523292" />
+			<stop offset="1" stop-color="#8660f3" />
+		</linearGradient>
+		<linearGradient id="core-orbit-track" x1="0%" x2="100%" y1="0%" y2="100%">
+			<stop stop-color="#8462ff" stop-opacity=".28" />
+			<stop offset=".35" stop-color="#9d80fc" />
+			<stop offset=".7" stop-color="#ddd2ff" />
+			<stop offset="1" stop-color="#7e4df5" stop-opacity=".45" />
+		</linearGradient>
+		<clipPath id="core-orbit-clip"><circle cx={cx} cy={cy} r={radius} /></clipPath>
+	</defs>
+
+	<ellipse cx={cx} cy={cy} rx="264" ry="202" fill="url(#core-orbit-halo)" />
+	<g class="stars">
+		{starLayers.map((layer, index) => <path class={`star-${index}`} d={layer.join("")} />)}
+	</g>
+	<g class="globe-guides" fill="none" stroke="#b298ff" stroke-width=".65" opacity=".24">
+		<circle cx={cx} cy={cy} r="181" stroke-dasharray="2 7" />
+		<circle cx={cx} cy={cy} r="172" opacity=".43" />
+		<path d="M64 365h15m-7.5-7.5v15M525 43h16m-8-8v16M76 132h8m-4-4v8M534 323h10m-5-5v10" />
+		<ellipse cx={cx} cy={cy} rx="216" ry="95" transform={`rotate(25 ${cx} ${cy})`} stroke-dasharray="4 6" />
+	</g>
+	<path d={track} transform={`rotate(${tilt} ${cx} ${cy})`} fill="none" stroke="#9070ec" stroke-width="1" opacity=".5" />
+
+	<circle cx={cx} cy={cy} r={radius} fill="url(#core-orbit-surface)" />
+	<g clip-path="url(#core-orbit-clip)">
+		<g transform={`rotate(12 ${cx} ${cy})`} fill="none" stroke="#aa8ffa" stroke-width=".7" opacity=".25">
+			{[36, 77, 111].map((rx) => <ellipse cx={cx} cy={cy} rx={rx} ry={radius} />)}
+			<path d="M154 145Q304 213 454 145M149 197Q304 284 459 197M156 249Q304 340 452 249M184 299Q304 377 424 299M186 94Q304 148 422 94" />
+		</g>
+		<g class="sphere-dots">
+			{pointLayers.map((layer, index) => <path class={`point-${index}`} d={layer.join("")} />)}
+		</g>
+	</g>
+	<circle cx={cx} cy={cy} r={radius} fill="none" stroke="#9e70ff" stroke-width="6" opacity=".22" class="rim-glow" />
+	<circle cx={cx} cy={cy} r={radius} fill="none" stroke="url(#core-orbit-rim)" stroke-width="1.85" />
+
+	<g transform={`rotate(${tilt} ${cx} ${cy})`} fill="none">
+		<path d={front} stroke="#8b52ff" stroke-width="6" opacity=".25" class="rim-glow" />
+		<path d={front} stroke="url(#core-orbit-track)" stroke-width="1.55" />
+		<path d={track} pathLength="100" class="orbit-signal" />
+	</g>
+	{pins.map(({ x, y, label, tint }) => (
+		<g class="orbit-pin" data-orbit-pin={tint} transform={`translate(${round(x)} ${round(y)})`}>
+			<circle r="10" class="pin-ring" />
+			<circle r="3.2" class="pin-light" />
+			<text x={tint === "mint" ? -15 : 15} y="4" text-anchor={tint === "mint" ? "end" : "start"}>{label}</text>
+		</g>
+	))}
+</svg>
+
+<style>
+	.globe { display: block; width: 100%; height: auto; overflow: visible; }
+	.sphere-dots, .stars { fill: none; stroke-linecap: round; }
+	.star-0 { stroke: #a688ff; stroke-width: 1.1; opacity: .47; }
+	.star-1 { stroke: #e2d8ff; stroke-width: 1.35; opacity: .42; }
+	.star-2 { stroke: #8f6cef; stroke-width: .8; opacity: .34; }
+	.point-0 { stroke: #ac92e4; stroke-width: .95; opacity: .22; }
+	.point-1 { stroke: #a589ee; stroke-width: 1.2; opacity: .44; }
+	.point-2 { stroke: #b28cff; stroke-width: 1.55; opacity: .61; }
+	.point-3 { stroke: #c7aeff; stroke-width: 1.85; opacity: .77; }
+	.point-4 { stroke: #e6d9ff; stroke-width: 1.95; opacity: .9; }
+	.rim-glow { filter: blur(4px); }
+	.orbit-signal {
+		stroke: #efe5ff;
+		stroke-width: 2.6;
+		stroke-linecap: round;
+		stroke-dasharray: 3 97;
+		stroke-dashoffset: 38;
+		filter: drop-shadow(0 0 4px #c3a5ff);
+		animation: orbit-travel 9s linear infinite paused;
+	}
+	:global(project-orbit[data-running]) .orbit-signal { animation-play-state: running; }
+	@keyframes orbit-travel { to { stroke-dashoffset: -62; } }
+	.orbit-pin { color: #ac92e6; opacity: .65; transition: color .28s, opacity .28s; }
+	.orbit-pin .pin-ring { fill: #191033; stroke: currentColor; stroke-width: 1; }
+	.orbit-pin .pin-light { fill: currentColor; }
+	.orbit-pin text { fill: currentColor; font: 11px var(--site-mono); }
+	:global(project-orbit[data-active="mint"]) [data-orbit-pin="mint"],
+	:global(project-orbit[data-active="lavender"]) [data-orbit-pin="lavender"],
+	:global(project-orbit[data-active="sand"]) [data-orbit-pin="sand"] {
+		color: #f0e4ff;
+		opacity: 1;
+	}
+	:global(project-orbit[data-active="mint"]) [data-orbit-pin="mint"] .pin-light,
+	:global(project-orbit[data-active="lavender"]) [data-orbit-pin="lavender"] .pin-light,
+	:global(project-orbit[data-active="sand"]) [data-orbit-pin="sand"] .pin-light {
+		filter: drop-shadow(0 0 5px #ded0ff);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.orbit-signal { animation: none; }
+		.orbit-pin { transition: none; }
+	}
+</style>

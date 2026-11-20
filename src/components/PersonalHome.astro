@@ -2,12 +2,12 @@
 import { Image } from "astro:assets";
 import { Icon } from "astro-icon/components";
 import avatar from "../assets/images/github-avatar.png";
-import workspace from "../assets/images/mindnotes-workspace.png";
 import { ownerConfig } from "../config";
 import type { PostForList } from "../utils/content-utils";
 import { formatDateToYYYYMMDD } from "../utils/date-utils";
 import { getPostUrlBySlug, url } from "../utils/url-utils";
 import ProjectCards from "./ProjectCards.astro";
+import ProjectOrbit from "./ProjectOrbit.astro";
 
 interface Props {
 	posts: PostForList[];
@@ -17,196 +17,173 @@ const { posts } = Astro.props;
 ---
 
 <section class="home-hero" aria-labelledby="home-title">
-	<div class="hero-intro">
-		<a class="hero-profile" href={ownerConfig.githubUrl} rel="me" aria-label={`在 GitHub 查看 @${ownerConfig.handle}`}>
-			<Image src={avatar} width={40} height={40} alt="" />
-			<span>@{ownerConfig.handle}</span>
-		</a>
-		<h1 id="home-title">{ownerConfig.name} 的<span>工程笔记</span></h1>
-		<p>我在做本地学习工具、浏览器白板和在线评测。这里记录项目的实现取舍，以及能在开源仓库里找到的改动。</p>
-		<div class="hero-actions">
-			<a class="hero-button" href={url("/projects/")}>
-				浏览项目 <Icon name="fa6-solid:arrow-right" aria-hidden="true" />
+	<div class="site-shell hero-shell">
+		<div class="hero-intro">
+			<a class="hero-profile" href={ownerConfig.githubUrl} rel="me" aria-label={`在 GitHub 查看 @${ownerConfig.handle}`}>
+				<Image src={avatar} width={48} height={48} alt="" />
+				<span>@{ownerConfig.handle}</span>
+				<Icon name="fa6-solid:arrow-up-right-from-square" aria-hidden="true" />
 			</a>
-			<a class="hero-button hero-button-outline" href={url("/archive/")}>阅读文章</a>
-		</div>
-	</div>
-	<figure class="hero-preview">
-		<div class="hero-canvas">
-			<Image
-				src={workspace}
-				alt="MindNotes Pro 的画布，展示连接客户端、网关、服务与数据库的网络图模板"
-				widths={[400, 700, 1000]}
-				sizes="(max-width: 760px) 86vw, (max-width: 1240px) 43vw, 510px"
-				loading="eager"
-				fetchpriority="high"
-			/>
-		</div>
-		<figcaption>
-			<span><span class="preview-mark" aria-hidden="true"></span> MindNotes Pro</span>
-			<a href={`${ownerConfig.siteOrigin}/mindnotes-pro/`}>
-				在线体验 <Icon name="fa6-solid:arrow-up-right-from-square" aria-hidden="true" />
-			</a>
-		</figcaption>
-	</figure>
-</section>
-
-<section id="projects" class="site-section" aria-labelledby="featured-projects-title">
-	<div class="site-section-heading">
-		<h2 id="featured-projects-title">精选项目</h2>
-		<a class="site-text-link" href={url("/projects/")}>
-			查看全部项目 <Icon name="fa6-solid:arrow-right" aria-hidden="true" />
-		</a>
-	</div>
-	<ProjectCards />
-</section>
-
-<section id="notes" class="site-section" aria-labelledby="notes-title">
-	<div class="site-section-heading">
-		<h2 id="notes-title">最近发布</h2>
-		<a class="site-text-link" href={url("/archive/")}>
-			文章归档 <Icon name="fa6-solid:arrow-right" aria-hidden="true" />
-		</a>
-	</div>
-	<ul class="notes-list">
-		{posts.slice(0, 4).map(({ slug, data }) => (
-			<li>
-				<a class="note-link" href={getPostUrlBySlug(slug)}>
-					<time datetime={formatDateToYYYYMMDD(data.published)}>{formatDateToYYYYMMDD(data.published)}</time>
-					<div>
-						<h3>{data.title}</h3>
-						{data.description && <p>{data.description}</p>}
-					</div>
-					<Icon class="note-arrow" name="fa6-solid:arrow-up-right-from-square" aria-hidden="true" />
+			<h1 id="home-title">{ownerConfig.name} 的<span>工程笔记</span></h1>
+			<p>我做本地学习工具、浏览器白板和在线评测。这里写实现过程，也记录开源修复。</p>
+			<div class="hero-actions">
+				<a class="hero-button" href={url("/projects/")}>
+					浏览项目 <Icon name="fa6-solid:arrow-right" aria-hidden="true" />
 				</a>
-			</li>
-		))}
-	</ul>
+				<a class="hero-button hero-button-outline" href={url("/archive/")}>阅读文章</a>
+			</div>
+		</div>
+		<ProjectOrbit />
+		<a class="scroll-link" href="#projects">
+			<span class="scroll-arrow"><Icon name="fa6-solid:arrow-down" aria-hidden="true" /></span>
+			<span>首页精选</span>
+		</a>
+	</div>
 </section>
+
+<div class="site-shell home-content">
+	<section id="projects" class="site-section" aria-labelledby="featured-projects-title">
+		<div class="site-section-heading">
+			<div>
+				<p class="section-index" aria-hidden="true">01 / PROJECTS</p>
+				<h2 id="featured-projects-title">精选项目</h2>
+			</div>
+			<a class="site-text-link" href={url("/projects/")}>
+				查看全部项目 <Icon name="fa6-solid:arrow-right" aria-hidden="true" />
+			</a>
+		</div>
+		<ProjectCards />
+	</section>
+
+	<section id="notes" class="site-section" aria-labelledby="notes-title">
+		<div class="site-section-heading">
+			<div>
+				<p class="section-index" aria-hidden="true">02 / NOTES</p>
+				<h2 id="notes-title">最近发布</h2>
+			</div>
+			<a class="site-text-link" href={url("/archive/")}>
+				文章归档 <Icon name="fa6-solid:arrow-right" aria-hidden="true" />
+			</a>
+		</div>
+		<ul class="notes-list">
+			{posts.slice(0, 4).map(({ slug, data }) => (
+				<li>
+					<a class="note-link" href={getPostUrlBySlug(slug)}>
+						<time datetime={formatDateToYYYYMMDD(data.published)}>{formatDateToYYYYMMDD(data.published)}</time>
+						<div>
+							<h3>{data.title}</h3>
+							{data.description && <p>{data.description}</p>}
+						</div>
+						<Icon class="note-arrow" name="fa6-solid:arrow-right" aria-hidden="true" />
+					</a>
+				</li>
+			))}
+		</ul>
+	</section>
+</div>
 
 <style>
 	.home-hero {
+		position: relative;
+		isolation: isolate;
+		overflow: clip;
+		background: radial-gradient(ellipse at 78% 52%, #21113c 0%, #120c26 37%, transparent 68%), var(--launch-bg);
+		color: var(--launch-ink);
+	}
+
+	.home-hero::before {
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		content: "";
+		background-image: radial-gradient(circle, #ad90e86f 0.65px, transparent 1px);
+		background-size: 30px 30px;
+		mask-image: linear-gradient(104deg, transparent 21%, black 76%, transparent);
+		opacity: .3;
+		pointer-events: none;
+	}
+
+	.hero-shell {
 		display: grid;
-		grid-template-columns: minmax(0, 0.94fr) minmax(0, 1.06fr);
+		grid-template-columns: minmax(0, .81fr) minmax(0, 1.19fr);
 		align-items: center;
-		gap: clamp(1.75rem, 4vw, 4rem);
-		min-height: 26rem;
-		padding: clamp(1.5rem, 4.25vw, 3.5rem);
-		border: 1px solid #29392f;
-		border-radius: 1.4rem;
-		background: #18241d;
-		color: #f5f6ef;
+		column-gap: clamp(1.5rem, 4vw, 4rem);
+		row-gap: clamp(1.5rem, 3.6vw, 2.75rem);
+		padding-block: clamp(2.6rem, 5.8vw, 5.25rem) 1.2rem;
 	}
 
 	.hero-profile {
 		display: inline-flex;
 		align-items: center;
-		gap: 0.7rem;
-		color: #d0ddd2;
-		font: 0.875rem var(--site-mono);
+		gap: .58rem;
+		min-height: 2.75rem;
+		padding: .35rem .75rem .35rem .35rem;
+		border: 1px solid #584475;
+		border-radius: 999px;
+		background: #1a112b;
+		color: #ded0f7;
+		font: .84rem var(--site-mono);
 	}
-
-	.hero-profile:hover { color: var(--site-lime); }
-
-	.hero-profile img {
-		border-radius: 50%;
-		border: 1px solid #99aa99;
-		width: 2rem;
-		height: 2rem;
-	}
+	.hero-profile:hover { background: #291a43; color: #fffaff; }
+	.hero-profile img { width: 1.75rem; height: 1.75rem; border-radius: 50%; }
+	.hero-profile svg { font-size: .67rem; margin-inline-start: .2rem; }
 
 	.home-hero h1 {
-		margin: 0.925rem 0 1.1rem;
-		font-size: clamp(2.8rem, 5vw, 4.8rem);
-		font-weight: 700;
-		letter-spacing: -0.05em;
-		line-height: 1.07;
+		margin: clamp(1.35rem, 3vw, 2.2rem) 0 1.2rem;
+		font-size: clamp(3rem, 6.45vw, 6.25rem);
+		font-weight: 800;
+		letter-spacing: -.058em;
+		line-height: 1.01;
 	}
-
 	.home-hero h1 span {
 		display: block;
-		color: var(--site-lime);
-		letter-spacing: -0.065em;
+		width: fit-content;
+		margin-top: .12em;
+		padding-block-end: .06em;
+		color: #b98fff;
+		background: linear-gradient(108deg, #dcc3ff -6%, #ac7aff 72%, #a87afa);
+		background-clip: text;
+		-webkit-text-fill-color: transparent;
 	}
 
-	.hero-intro p {
-		max-width: 25.75rem;
-		color: #c3cec2;
-		font-size: clamp(0.95rem, 1.45vw, 1.05rem);
-		line-height: 1.85;
-	}
-
-	.hero-actions { display: flex; flex-wrap: wrap; gap: 0.65rem; margin-top: 1.65rem; }
-
+	.hero-intro p { max-width: 26rem; color: var(--launch-muted); font-size: clamp(1rem, 1.55vw, 1.125rem); line-height: 1.8; }
+	.hero-actions { display: flex; flex-wrap: wrap; gap: .65rem; margin-top: clamp(1.45rem, 3vw, 2rem); }
 	.hero-button {
 		display: inline-flex;
-		min-height: 2.875rem;
 		align-items: center;
-		gap: 0.6rem;
-		padding: 0.55rem 0.95rem;
-		border: 1px solid var(--site-lime);
-		border-radius: 0.6rem;
-		background: var(--site-lime);
-		color: #192616;
-		font-size: 0.9375rem;
+		gap: .65rem;
+		min-height: 3rem;
+		padding: .55rem 1.1rem;
+		border: 1px solid #dbc2ff;
+		border-radius: 999px;
+		background: #c9a6ff;
+		color: #20113b;
+		font-size: .95rem;
 		font-weight: 700;
 	}
+	.hero-button:hover { background: #e1cbff; border-color: #f0e2ff; }
+	.hero-button svg { font-size: .8rem; }
+	.hero-button-outline { background: #120d20; border-color: #65547e; color: #f3ecff; }
+	.hero-button-outline:hover { background: #2c2041; border-color: #a680e4; }
+	.home-hero a:focus-visible { outline-color: #d2b2ff; }
 
-	.hero-button:hover { background: #e6fbb9; border-color: #e6fbb9; }
-	.hero-button svg { font-size: 0.8rem; }
-	.hero-button-outline { background: transparent; border-color: #5b6b5f; color: #f5f6ef; }
-	.hero-button-outline:hover { background: #283a2f; border-color: #9eae9a; }
-	.home-hero a:focus-visible { outline-color: var(--site-lime); }
-
-	.hero-preview {
-		min-width: 0;
-		margin: 0;
-		border: 1px solid #445749;
-		border-radius: 0.95rem;
-		background: #233329;
-		overflow: hidden;
-	}
-
-	.hero-canvas {
-		display: grid;
-		place-items: center;
-		padding: clamp(0.875rem, 2vw, 1.5rem);
-		background-color: #2c4435;
-		background-image: radial-gradient(#8aa88d62 1px, transparent 1px);
-		background-size: 15px 15px;
-	}
-
-	.hero-canvas img {
-		display: block;
-		width: 100%;
-		aspect-ratio: 1.62;
-		height: auto;
-		object-fit: cover;
-		object-position: center;
-		border: 1px solid #829588;
-		border-radius: 0.55rem;
-		background: #f5f5f3;
-		box-shadow: 0 0.6rem 2rem #101d16a6;
-	}
-
-	.hero-preview figcaption {
+	.scroll-link {
+		grid-column: 1 / -1;
 		display: flex;
 		align-items: center;
-		justify-content: space-between;
-		flex-wrap: wrap;
-		gap: 0.35rem 0.75rem;
-		padding: 0.72rem 1rem;
-		border-top: 1px solid #445749;
-		font-size: 0.8125rem;
-		font-weight: 500;
+		gap: .6rem;
+		min-height: 3rem;
+		padding-top: .7rem;
+		border-top: 1px solid #aa8bc43e;
+		color: var(--launch-muted);
+		font-size: .83rem;
+		letter-spacing: .07em;
 	}
+	.scroll-link:hover { color: var(--launch-ink); }
+	.scroll-arrow { display: grid; place-items: center; width: 1.55rem; height: 1.55rem; border: 1px solid #786097; border-radius: 50%; color: #d9bfff; font-size: .66rem; }
 
-	.hero-preview figcaption > span, .hero-preview figcaption > a { display: inline-flex; gap: 0.5rem; align-items: center; }
-	.hero-preview figcaption a { color: #d5eba8; }
-	.hero-preview figcaption a:hover { text-decoration: underline; text-underline-offset: 0.25em; }
-	.hero-preview figcaption svg { font-size: 0.7rem; }
-	.preview-mark { width: 0.45rem; height: 0.45rem; border-radius: 50%; background: var(--site-lime); }
-
+	.home-content { padding-top: clamp(2.15rem, 5.2vw, 4.25rem); }
+	.section-index { color: var(--primary); font: .72rem/1.25 var(--site-mono); letter-spacing: .1em; margin-bottom: .45rem; }
 	.notes-list { border-top: 1px solid var(--site-border); }
 
 	.note-link {
@@ -214,26 +191,35 @@ const { posts } = Astro.props;
 		grid-template-columns: 8rem minmax(0, 1fr) auto;
 		align-items: start;
 		gap: 1rem;
-		padding: 1.1rem 0.75rem;
+		padding: 1.1rem .75rem;
 		border-bottom: 1px solid var(--site-border);
-		border-radius: 0.35rem;
+		border-radius: .35rem;
 	}
-
 	.note-link:hover { background: var(--site-hover); }
 	.note-link:hover h3 { color: var(--primary); }
-	.note-link time { padding-top: 0.23rem; color: var(--site-muted); font: 0.85rem/1.2 var(--site-mono); }
+	.note-link time { padding-top: .23rem; color: var(--site-muted); font: .85rem/1.2 var(--site-mono); }
 	.note-link h3 { font-size: clamp(1rem, 2vw, 1.2rem); font-weight: 700; line-height: 1.5; }
-	.note-link p { color: var(--site-muted); margin-top: 0.25rem; font-size: 0.9rem; line-height: 1.65; }
-	.note-arrow { color: var(--primary); width: 0.8rem; margin-top: 0.35rem; }
+	.note-link p { color: var(--site-muted); margin-top: .25rem; font-size: .9rem; line-height: 1.65; }
+	.note-arrow { color: var(--primary); width: .85rem; margin-top: .35rem; }
 
+	@media (prefers-reduced-motion: no-preference) {
+		.hero-intro { animation: intro-in .6s cubic-bezier(.2,.68,.25,1) both; }
+		@keyframes intro-in { from { opacity: .45; transform: translateY(.55rem); } to { opacity: 1; transform: none; } }
+		.note-arrow { transition: transform .22s ease-out; }
+		.note-link:hover .note-arrow { transform: translateX(.2rem); }
+	}
+	@media (forced-colors: active) {
+		.home-hero h1 span { background: none; color: CanvasText; -webkit-text-fill-color: currentColor; }
+	}
 	@media (max-width: 760px) {
-		.home-hero { grid-template-columns: minmax(0, 1fr); min-height: 0; gap: 1.5rem; }
-		.home-hero h1 { font-size: clamp(2.45rem, 10vw, 4.2rem); }
-		.hero-intro p { max-width: 34rem; }
+		.home-hero { background: radial-gradient(ellipse at 70% 57%, #241343, transparent 64%), var(--launch-bg); }
+		.hero-shell { grid-template-columns: minmax(0, 1fr); padding-top: clamp(2rem, 7vw, 3.35rem); row-gap: 1.85rem; }
+		.home-hero h1 { font-size: clamp(3rem, 11vw, 5rem); margin-bottom: 1rem; }
+		.hero-intro p { max-width: 29rem; }
 	}
 
 	@media (max-width: 590px) {
-		.note-link { grid-template-columns: minmax(0, 1fr) auto; gap: 0.35rem 0.75rem; padding-inline: 0.35rem; }
-		.note-link time { grid-column: 1 / -1; padding-top: 0; font-size: 0.78rem; }
+		.note-link { grid-template-columns: minmax(0, 1fr) auto; gap: .35rem .75rem; padding-inline: .35rem; }
+		.note-link time { grid-column: 1 / -1; padding-top: 0; font-size: .78rem; }
 	}
 </style>
