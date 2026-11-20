@@ -1,141 +1,112 @@
 ---
 import { Icon } from "astro-icon/components";
-import { navBarConfig, siteConfig } from "../config";
+import { navBarConfig, ownerConfig, siteConfig } from "../config";
 import { LinkPresets } from "../constants/link-presets";
-import { LinkPreset, type NavBarLink } from "../types/config";
-import { url } from "../utils/url-utils";
+import { pathsEqual, url } from "../utils/url-utils";
 import LightDarkSwitch from "./LightDarkSwitch.svelte";
 import Search from "./Search.svelte";
 import DisplaySettings from "./widget/DisplaySettings.svelte";
-import NavMenuPanel from "./widget/NavMenuPanel.astro";
 
-const className = Astro.props.class;
-
-let links: NavBarLink[] = navBarConfig.links.map(
-	(item: NavBarLink | LinkPreset): NavBarLink => {
-		if (typeof item === "number") {
-			return LinkPresets[item];
-		}
-		return item;
-	},
-);
+const links = navBarConfig.links
+	.map((link) => typeof link === "number" ? LinkPresets[link] : link)
+	.filter((link) => !link.external);
 ---
-<div id="navbar" class="z-50 onload-animation">
-    <div class="absolute h-8 left-0 right-0 -top-8 bg-[var(--card-bg)] transition"></div> <!-- used for onload animation -->
-    <div class:list={[
-        className,
-        "card-base !overflow-visible max-w-[var(--page-width)] h-[4.5rem] !rounded-t-none mx-auto flex items-center justify-between px-4"]}>
-        <a href={url('/')} class="btn-plain scale-animation rounded-lg h-[3.25rem] px-5 font-bold active:scale-95">
-            <div class="flex flex-row text-[var(--primary)] items-center text-md">
-                <Icon name="material-symbols:home-outline-rounded" class="text-[1.75rem] mb-1 mr-2" />
-                {siteConfig.title}
-            </div>
-        </a>
-        <div class="hidden md:flex">
-            {links.map((l) => {
-                return <a aria-label={l.name} href={l.external ? l.url : url(l.url)} target={l.external ? "_blank" : null}
-                          class="btn-plain scale-animation rounded-lg h-11 font-bold px-5 active:scale-95"
-                >
-                    <div class="flex items-center">
-                        {l.name}
-                        {l.external && <Icon name="fa6-solid:arrow-up-right-from-square" class="text-[0.875rem] transition -translate-y-[1px] ml-1 text-black/[0.2] dark:text-white/[0.2]"></Icon>}
-                    </div>
-                </a>;
-            })}
-        </div>
-        <div class="flex">
-            <!--<SearchPanel client:load>-->
-            <Search client:only="svelte"></Search>
-            {!siteConfig.themeColor.fixed && (
-                    <button aria-label="Display Settings" class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90" id="display-settings-switch">
-                        <Icon name="material-symbols:palette-outline" class="text-[1.25rem]"></Icon>
-                    </button>
-            )}
-            <LightDarkSwitch client:only="svelte"></LightDarkSwitch>
-            <button aria-label="Menu" name="Nav Menu" class="btn-plain scale-animation rounded-lg w-11 h-11 active:scale-90 md:!hidden" id="nav-menu-switch">
-                <Icon name="material-symbols:menu-rounded" class="text-[1.25rem]"></Icon>
-            </button>
-        </div>
-        <NavMenuPanel links={links}></NavMenuPanel>
-        <DisplaySettings client:only="svelte"></DisplaySettings>
-    </div>
-</div>
+
+<header class="site-header" data-pagefind-ignore>
+	<div class="site-shell site-navbar">
+		<a class="site-brand" href={url("/")} aria-label={`${siteConfig.title}首页`}>
+			<span class="brand-icon"><Icon name="fa6-solid:code" aria-hidden="true" /></span>
+			<span>{ownerConfig.name}<span class="brand-period" aria-hidden="true">.</span></span>
+		</a>
+
+		<nav class="site-nav" aria-label="主导航">
+			{links.map((link) => (
+				<a data-site-nav href={url(link.url)} aria-current={pathsEqual(Astro.url.pathname, url(link.url)) ? "page" : undefined}>
+					{link.name}
+				</a>
+			))}
+		</nav>
+
+		<div class="site-toolbar">
+			<Search client:load label="站内搜索">
+				<Icon slot="searchIcon" name="material-symbols:search-rounded" aria-hidden="true" />
+				<Icon slot="closeIcon" name="material-symbols:close-rounded" aria-hidden="true" />
+			</Search>
+			<LightDarkSwitch client:load label="切换配色" />
+			{!siteConfig.themeColor.fixed && (
+				<>
+					<button class="btn-plain toolbar-button" type="button" aria-label="主题颜色" aria-expanded="false" aria-controls="display-setting" id="display-settings-switch">
+						<Icon name="material-symbols:palette-outline" aria-hidden="true" />
+					</button>
+					<DisplaySettings client:only="svelte" />
+				</>
+			)}
+			<a class="toolbar-github" href={ownerConfig.githubUrl} rel="me" aria-label="GitHub">
+				<Icon name="fa6-brands:github" aria-hidden="true" />
+				<span>GitHub</span>
+			</a>
+		</div>
+	</div>
+</header>
+
+<style>
+	.site-header { position: relative; z-index: 30; border-bottom: 1px solid var(--site-border); }
+	.site-navbar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; min-height: 4.55rem; gap: 0.85rem; }
+	.site-brand { display: inline-flex; justify-self: start; align-items: center; gap: 0.62rem; font-size: 1.55rem; line-height: 1; font-weight: 700; letter-spacing: -0.06em; }
+	.brand-icon { display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 0.525rem; background: #23362a; color: var(--site-lime); font-size: 0.85rem; }
+	.brand-period { color: var(--primary); }
+	.site-nav { display: flex; justify-content: center; gap: 0.25rem; }
+	.site-nav a { display: flex; justify-content: center; align-items: center; min-height: 2.65rem; padding-inline: clamp(0.65rem, 1.3vw, 1.15rem); border-radius: 0.55rem; color: var(--site-muted); font-size: 0.9375rem; font-weight: 700; white-space: nowrap; }
+	.site-nav a:hover, .site-nav a[aria-current="page"] { background: var(--site-hover); color: var(--primary); }
+	.site-toolbar { display: flex; justify-content: end; align-items: center; gap: 0.15rem; }
+	.toolbar-button, .toolbar-github { display: inline-flex; align-items: center; justify-content: center; min-width: 2.75rem; height: 2.75rem; border-radius: 0.55rem; }
+	.toolbar-button { font-size: 1.2rem; }
+	.toolbar-github { gap: 0.45rem; color: var(--site-ink); font-size: 0.875rem; font-weight: 700; padding: 0 0.55rem; white-space: nowrap; }
+	.toolbar-github:hover { background: var(--site-hover); color: var(--primary); }
+	.toolbar-github svg { font-size: 1.12rem; }
+
+	@media (max-width: 840px) { .toolbar-github span { display: none; } }
+	@media (max-width: 620px) {
+		.site-navbar { grid-template-columns: 1fr auto; gap: 0.25rem 0.35rem; padding: 0.65rem 0 0.5rem; }
+		.site-nav { grid-column: 1 / -1; grid-row: 2; justify-content: start; }
+		.site-nav a { flex: 1; min-height: 2.6rem; }
+	}
+</style>
 
 <script>
-function switchTheme() {
-    if (localStorage.theme === 'dark') {
-        document.documentElement.classList.remove('dark');
-        localStorage.theme = 'light';
-    } else {
-        document.documentElement.classList.add('dark');
-        localStorage.theme = 'dark';
-    }
-}
+	import { pathsEqual } from "../utils/url-utils";
 
-function loadButtonScript() {
-    let switchBtn = document.getElementById("scheme-switch");
-    if (switchBtn) {
-        switchBtn.onclick = function () {
-            switchTheme()
-        };
-    }
+	function updateNavigation() {
+		for (const link of document.querySelectorAll<HTMLAnchorElement>("[data-site-nav]")) {
+			if (pathsEqual(link.pathname, window.location.pathname)) link.setAttribute("aria-current", "page");
+			else link.removeAttribute("aria-current");
+		}
+	}
+	document.addEventListener("swup:page:view", updateNavigation);
 
-    let settingBtn = document.getElementById("display-settings-switch");
-    if (settingBtn) {
-        settingBtn.onclick = function () {
-            let settingPanel = document.getElementById("display-setting");
-            if (settingPanel) {
-                settingPanel.classList.toggle("float-panel-closed");
-            }
-        };
-    }
+	const displaySwitch = document.querySelector<HTMLButtonElement>("#display-settings-switch");
+	if (displaySwitch) {
+		function setDisplayPanel(open: boolean) {
+			const panel = document.getElementById("display-setting");
+			if (!panel) return;
+			panel.classList.toggle("float-panel-closed", !open);
+			displaySwitch?.setAttribute("aria-expanded", String(open));
+		}
 
-    let menuBtn = document.getElementById("nav-menu-switch");
-    if (menuBtn) {
-        menuBtn.onclick = function () {
-            let menuPanel = document.getElementById("nav-menu-panel");
-            if (menuPanel) {
-                menuPanel.classList.toggle("float-panel-closed");
-            }
-        };
-    }
-}
-
-loadButtonScript();
+		displaySwitch.addEventListener("click", () => {
+			setDisplayPanel(displaySwitch.getAttribute("aria-expanded") !== "true");
+		});
+		document.addEventListener("click", (event) => {
+			const target = event.target;
+			if (target instanceof Node && !displaySwitch.contains(target) && !document.getElementById("display-setting")?.contains(target)) {
+				setDisplayPanel(false);
+			}
+		});
+		document.addEventListener("keydown", (event) => {
+			if (event.key === "Escape" && displaySwitch.getAttribute("aria-expanded") === "true") {
+				setDisplayPanel(false);
+				displaySwitch.focus();
+			}
+		});
+	}
 </script>
-
-{import.meta.env.PROD && <script is:inline define:vars={{scriptUrl: url('/pagefind/pagefind.js')}}>
-async function loadPagefind() {
-    try {
-        const response = await fetch(scriptUrl, { method: 'HEAD' });
-        if (!response.ok) {
-            throw new Error(`Pagefind script not found: ${response.status}`);
-        }
-
-        const pagefind = await import(scriptUrl);
-
-        await pagefind.options({
-            excerptLength: 20
-        });
-
-        window.pagefind = pagefind;
-
-        document.dispatchEvent(new CustomEvent('pagefindready'));
-        console.log('Pagefind loaded and initialized successfully, event dispatched.');
-    } catch (error) {
-        console.error('Failed to load Pagefind:', error);
-        window.pagefind = {
-            search: () => Promise.resolve({ results: [] }),
-            options: () => Promise.resolve(),
-        };
-        document.dispatchEvent(new CustomEvent('pagefindloaderror'));
-        console.log('Pagefind load error, event dispatched.');
-    }
-}
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadPagefind);
-} else {
-    loadPagefind();
-}
-</script>}

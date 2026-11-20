@@ -1,0 +1,93 @@
+---
+import { Icon } from "astro-icon/components";
+import ProjectCards from "../components/ProjectCards.astro";
+import { ownerConfig } from "../config";
+import { otherProjects, upstreamWork } from "../content/portfolio";
+import MainGridLayout from "../layouts/MainGridLayout.astro";
+
+const description = "本地学习工具、浏览器白板、在线评测和我参与的上游修复。";
+const mergedPullRequests = new URL("https://github.com/search");
+mergedPullRequests.searchParams.set("q", `is:pr is:merged author:${ownerConfig.handle} -user:${ownerConfig.handle}`);
+mergedPullRequests.searchParams.set("type", "pullrequests");
+---
+
+<MainGridLayout title="项目" description={description}>
+	<header class="site-heading">
+		<h1>项目与开源贡献</h1>
+		<p>{description}</p>
+	</header>
+
+	<section class="site-section" aria-labelledby="featured-projects-title">
+		<div class="site-section-heading"><h2 id="featured-projects-title">精选项目</h2></div>
+		<ProjectCards />
+	</section>
+
+	<section class="site-section" aria-labelledby="other-projects-title">
+		<div class="site-section-heading">
+			<h2 id="other-projects-title">更多项目</h2>
+			<a class="site-text-link" href={`${ownerConfig.githubUrl}?tab=repositories`}>
+				GitHub 仓库 <Icon name="fa6-solid:arrow-up-right-from-square" aria-hidden="true" />
+			</a>
+		</div>
+		<ul class="project-list">
+			{otherProjects.map((project) => (
+				<li>
+					<a class="site-card project-item" href={project.repo}>
+						<span>
+							<strong>{project.name}</strong>
+							<span class="project-summary">{project.description}</span>
+						</span>
+						<Icon name="fa6-solid:arrow-up-right-from-square" aria-hidden="true" />
+					</a>
+				</li>
+			))}
+		</ul>
+	</section>
+
+	<section class="site-section" aria-labelledby="upstream-title">
+		<div class="site-section-heading">
+			<h2 id="upstream-title">已合并的上游贡献</h2>
+			<a class="site-text-link" href={mergedPullRequests.href}>
+				更多 PR <Icon name="fa6-solid:arrow-up-right-from-square" aria-hidden="true" />
+			</a>
+		</div>
+		<ul class="project-list">
+			{upstreamWork.map((work) => (
+				<li>
+					<a class="site-card project-item" href={`https://github.com/${work.project}/pull/${work.pullRequest}`}>
+						<span>
+							<span class="pr-ref">{work.project} #{work.pullRequest}</span>
+							<strong>{work.title}</strong>
+							<span class="project-summary">{work.description}</span>
+						</span>
+						<Icon name="fa6-solid:arrow-up-right-from-square" aria-hidden="true" />
+					</a>
+				</li>
+			))}
+		</ul>
+	</section>
+</MainGridLayout>
+
+<style>
+	.project-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+	.project-list > li { min-width: 0; }
+
+	.project-item {
+		display: flex;
+		justify-content: space-between;
+		align-items: start;
+		height: 100%;
+		gap: 0.6rem;
+		padding: 1.2rem;
+	}
+
+	.project-item:hover { background: var(--site-hover); }
+	.project-item strong { display: block; font-size: 1.05rem; font-weight: 700; }
+	.project-item svg { flex: none; margin-top: 0.25rem; color: var(--primary); font-size: 0.8rem; }
+	.project-summary { display: block; margin-top: 0.4rem; color: var(--site-muted); font-size: 0.875rem; line-height: 1.65; }
+	.pr-ref { display: block; margin-bottom: 0.55rem; color: var(--primary); font: 0.75rem/1.5 var(--site-mono); overflow-wrap: anywhere; }
+
+	@media (max-width: 700px) {
+		.project-list { grid-template-columns: minmax(0, 1fr); }
+	}
+</style>

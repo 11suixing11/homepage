@@ -58,4 +58,4 @@ draft: false
 
 - [Live demo](https://11suixing11.github.io/mindnotes-pro/)
 - [Repository](https://github.com/11suixing11/mindnotes-pro)
-- [Roadmap](https://github.com/11suixing11/mindnotes-pro#roadmap)
+- [Roadmap](https://github.com/11suixing11/mindnotes-pro/blob/main/ROADMAP.md)

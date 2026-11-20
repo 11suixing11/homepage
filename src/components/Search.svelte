@@ -1,198 +1,120 @@
 <script lang="ts">
-import I18nKey from "@i18n/i18nKey";
-import { i18n } from "@i18n/translation";
-import Icon from "@iconify/svelte";
-import { url } from "@utils/url-utils.ts";
-import { onMount } from "svelte";
-import type { SearchResult } from "@/global";
+	import type { Snippet } from "svelte";
+	import type { SearchResult } from "@/global";
+	import { url } from "../utils/url-utils";
 
-let keywordDesktop = "";
-let keywordMobile = "";
-let result: SearchResult[] = [];
-let isSearching = false;
-let pagefindLoaded = false;
-let initialized = false;
-
-const fakeResult: SearchResult[] = [
-	{
-		url: url("/"),
-		meta: {
-			title: "This Is a Fake Search Result",
-		},
-		excerpt:
-			"Because the search cannot work in the <mark>dev</mark> environment.",
-	},
-	{
-		url: url("/"),
-		meta: {
-			title: "If You Want to Test the Search",
-		},
-		excerpt: "Try running <mark>npm build && npm preview</mark> instead.",
-	},
-];
-
-const togglePanel = () => {
-	const panel = document.getElementById("search-panel");
-	panel?.classList.toggle("float-panel-closed");
-};
-
-const setPanelVisibility = (show: boolean, isDesktop: boolean): void => {
-	const panel = document.getElementById("search-panel");
-	if (!panel || !isDesktop) return;
-
-	if (show) {
-		panel.classList.remove("float-panel-closed");
-	} else {
-		panel.classList.add("float-panel-closed");
-	}
-};
-
-const search = async (keyword: string, isDesktop: boolean): Promise<void> => {
-	if (!keyword) {
-		setPanelVisibility(false, isDesktop);
-		result = [];
-		return;
+	interface PagefindIndex {
+		search: Window["pagefind"]["search"];
+		options: (options: { baseUrl: string; excerptLength: number }) => Promise<void>;
 	}
 
-	if (!initialized) {
-		return;
+	let { label, searchIcon, closeIcon }: { label: string; searchIcon?: Snippet; closeIcon?: Snippet } = $props();
+	let dialog: HTMLDialogElement;
+	let searchField: HTMLInputElement;
+	let results = $state<SearchResult[]>([]);
+	let message = $state("");
+	let indexPromise: Promise<PagefindIndex> | undefined;
+	let requestId = 0;
+
+	function loadIndex() {
+		indexPromise ??= import(/* @vite-ignore */ url("/pagefind/pagefind.js"))
+			.then(async (index: PagefindIndex) => {
+				await index.options({ baseUrl: url("/"), excerptLength: 18 });
+				return index;
+			})
+			.catch((error) => {
+				indexPromise = undefined;
+				throw error;
+			});
+		return indexPromise;
 	}
 
-	isSearching = true;
+	function openSearch() {
+		dialog.showModal();
+		searchField.focus();
+	}
 
-	try {
-		let searchResults: SearchResult[] = [];
-
-		if (import.meta.env.PROD && pagefindLoaded && window.pagefind) {
-			const response = await window.pagefind.search(keyword);
-			searchResults = await Promise.all(
-				response.results.map((item) => item.data()),
-			);
-		} else if (import.meta.env.DEV) {
-			searchResults = fakeResult;
-		} else {
-			searchResults = [];
-			console.error("Pagefind is not available in production environment.");
+	async function search(value: string) {
+		const keyword = value.trim();
+		const id = ++requestId;
+		results = [];
+		if (!keyword) {
+			message = "";
+			return;
+		}
+		if (import.meta.env.DEV) {
+			message = "构建站点后，可在预览中使用搜索。";
+			return;
 		}
 
-		result = searchResults;
-		setPanelVisibility(result.length > 0, isDesktop);
-	} catch (error) {
-		console.error("Search error:", error);
-		result = [];
-		setPanelVisibility(false, isDesktop);
-	} finally {
-		isSearching = false;
+		message = "搜索中…";
+		try {
+			const index = await loadIndex();
+			const response = await index.search(keyword);
+			if (id !== requestId) return;
+			const matches = await Promise.all(response.results.slice(0, 10).map((match) => match.data()));
+			if (id !== requestId) return;
+			results = matches;
+			message = matches.length === 0 ? "没有匹配的文章。" : "";
+		} catch {
+			if (id === requestId) message = "暂时无法载入搜索索引，请重新输入关键词再试。";
+		}
 	}
-};
-
-onMount(() => {
-	const initializeSearch = () => {
-		initialized = true;
-		pagefindLoaded =
-			typeof window !== "undefined" &&
-			!!window.pagefind &&
-			typeof window.pagefind.search === "function";
-		console.log("Pagefind status on init:", pagefindLoaded);
-		if (keywordDesktop) search(keywordDesktop, true);
-		if (keywordMobile) search(keywordMobile, false);
-	};
-
-	if (import.meta.env.DEV) {
-		console.log(
-			"Pagefind is not available in development mode. Using mock data.",
-		);
-		initializeSearch();
-	} else {
-		document.addEventListener("pagefindready", () => {
-			console.log("Pagefind ready event received.");
-			initializeSearch();
-		});
-		document.addEventListener("pagefindloaderror", () => {
-			console.warn(
-				"Pagefind load error event received. Search functionality will be limited.",
-			);
-			initializeSearch(); // Initialize with pagefindLoaded as false
-		});
-
-		// Fallback in case events are not caught or pagefind is already loaded by the time this script runs
-		setTimeout(() => {
-			if (!initialized) {
-				console.log("Fallback: Initializing search after timeout.");
-				initializeSearch();
-			}
-		}, 2000); // Adjust timeout as needed
-	}
-});
-
-$: if (initialized && keywordDesktop) {
-	(async () => {
-		await search(keywordDesktop, true);
-	})();
-}
-
-$: if (initialized && keywordMobile) {
-	(async () => {
-		await search(keywordMobile, false);
-	})();
-}
 </script>
 
-<!-- search bar for desktop view -->
-<div id="search-bar" class="hidden lg:flex transition-all items-center h-11 mr-2 rounded-lg
-      bg-black/[0.04] hover:bg-black/[0.06] focus-within:bg-black/[0.06]
-      dark:bg-white/5 dark:hover:bg-white/10 dark:focus-within:bg-white/10
-">
-    <Icon icon="material-symbols:search" class="absolute text-[1.25rem] pointer-events-none ml-3 transition my-auto text-black/30 dark:text-white/30"></Icon>
-    <input placeholder="{i18n(I18nKey.search)}" bind:value={keywordDesktop} on:focus={() => search(keywordDesktop, true)}
-           class="transition-all pl-10 text-sm bg-transparent outline-0
-         h-full w-40 active:w-60 focus:w-60 text-black/50 dark:text-white/50"
-    >
-</div>
-
-<!-- toggle btn for phone/tablet view -->
-<button on:click={togglePanel} aria-label="Search Panel" id="search-switch"
-        class="btn-plain scale-animation lg:!hidden rounded-lg w-11 h-11 active:scale-90">
-    <Icon icon="material-symbols:search" class="text-[1.25rem]"></Icon>
+<button class="btn-plain search-button" type="button" aria-label={label} aria-haspopup="dialog" onclick={openSearch}>
+	{@render searchIcon?.()}
 </button>
 
-<!-- search panel -->
-<div id="search-panel" class="float-panel float-panel-closed search-panel absolute md:w-[30rem]
-top-20 left-4 md:left-[unset] right-4 shadow-2xl rounded-2xl p-2">
-
-    <!-- search bar inside panel for phone/tablet -->
-    <div id="search-bar-inside" class="flex relative lg:hidden transition-all items-center h-11 rounded-xl
-      bg-black/[0.04] hover:bg-black/[0.06] focus-within:bg-black/[0.06]
-      dark:bg-white/5 dark:hover:bg-white/10 dark:focus-within:bg-white/10
-  ">
-        <Icon icon="material-symbols:search" class="absolute text-[1.25rem] pointer-events-none ml-3 transition my-auto text-black/30 dark:text-white/30"></Icon>
-        <input placeholder="Search" bind:value={keywordMobile}
-               class="pl-10 absolute inset-0 text-sm bg-transparent outline-0
-               focus:w-60 text-black/50 dark:text-white/50"
-        >
-    </div>
-
-    <!-- search results -->
-    {#each result as item}
-        <a href={item.url}
-           class="transition first-of-type:mt-2 lg:first-of-type:mt-0 group block
-       rounded-xl text-lg px-3 py-2 hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)]">
-            <div class="transition text-90 inline-flex font-bold group-hover:text-[var(--primary)]">
-                {item.meta.title}<Icon icon="fa6-solid:chevron-right" class="transition text-[0.75rem] translate-x-1 my-auto text-[var(--primary)]"></Icon>
-            </div>
-            <div class="transition text-sm text-50">
-                {@html item.excerpt}
-            </div>
-        </a>
-    {/each}
-</div>
+<dialog bind:this={dialog} aria-labelledby="site-search-title" class="site-search">
+	<div class="search-heading">
+		<h2 id="site-search-title">{label}</h2>
+		<form method="dialog">
+			<button type="submit" class="btn-plain search-button" aria-label="关闭搜索">
+				{@render closeIcon?.()}
+			</button>
+		</form>
+	</div>
+	<input bind:this={searchField} type="search" aria-label="搜索关键词" placeholder="输入文章关键词" oninput={(event) => search(event.currentTarget.value)} />
+	{#if message}<p role="status" class="search-message">{message}</p>{/if}
+	{#if results.length}
+		<ul class="search-results" aria-label="搜索结果">
+			{#each results as item (item.url)}
+				<li>
+					<a href={item.url} onclick={() => dialog.close()}>
+						<strong>{item.meta.title}</strong>
+						<span>{@html item.excerpt}</span>
+					</a>
+				</li>
+			{/each}
+		</ul>
+	{/if}
+</dialog>
 
 <style>
-  input:focus {
-    outline: 0;
-  }
-  .search-panel {
-    max-height: calc(100vh - 100px);
-    overflow-y: auto;
-  }
+	.search-button { width: 2.75rem; height: 2.75rem; border-radius: 0.55rem; font-size: 1.25rem; }
+	.site-search {
+		position: fixed;
+		inset: clamp(2rem, 12vh, 6rem) 0 auto;
+		width: min(36rem, calc(100% - 2rem));
+		max-height: 75vh;
+		margin: 0 auto;
+		padding: clamp(1rem, 3vw, 1.5rem);
+		border: 1px solid var(--site-border);
+		border-radius: 1.1rem;
+		background: var(--card-bg);
+		color: var(--site-ink);
+		box-shadow: 0 1rem 3rem #10181145;
+	}
+	.site-search::backdrop { background: #111c15b0; }
+	.search-heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem; }
+	.search-heading h2 { font-size: 1.25rem; font-weight: 700; }
+	.site-search input { width: 100%; min-height: 2.75rem; border: 1px solid var(--site-border); border-radius: 0.55rem; background: var(--page-bg); padding: 0.6rem 0.75rem; }
+	.search-message { padding-top: 1rem; color: var(--site-muted); font-size: 0.875rem; }
+	.search-results { margin-top: 0.8rem; }
+	.search-results a { display: block; padding: 0.75rem; border-radius: 0.55rem; }
+	.search-results a:hover { background: var(--site-hover); }
+	.search-results a strong { display: block; color: var(--primary); }
+	.search-results a span { display: block; margin-top: 0.3rem; color: var(--site-muted); font-size: 0.875rem; line-height: 1.55; }
+	.search-results :global(mark) { background: var(--selection-bg); color: inherit; }
 </style>

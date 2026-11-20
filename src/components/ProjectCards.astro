@@ -1,0 +1,98 @@
+---
+import { Icon } from "astro-icon/components";
+import { featuredProjects } from "../content/portfolio";
+---
+
+<div class="project-grid">
+	{featuredProjects.map((project) => (
+		<article class="site-card project-card">
+			<div class="project-icon" data-tint={project.color}>
+				<Icon name={project.icon} aria-hidden="true" />
+			</div>
+			<h3>{project.name}</h3>
+			<p>{project.description}</p>
+			<ul class="project-stack" aria-label="技术栈">
+				{project.stack.map((technology) => <li>{technology}</li>)}
+			</ul>
+			<div class="project-links">
+				<a class="site-text-link" href={project.primary.href}>
+					{project.primary.label}
+					<Icon name="fa6-solid:arrow-up-right-from-square" aria-hidden="true" />
+				</a>
+				<a class="site-muted-link" href={project.repo} aria-label={`查看 ${project.name} 的 GitHub 源码`}>
+					<Icon name="fa6-brands:github" aria-hidden="true" /> 源码
+				</a>
+			</div>
+		</article>
+	))}
+</div>
+
+<style>
+	.project-grid {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 1rem;
+	}
+
+	.project-card {
+		display: flex;
+		flex-direction: column;
+		padding: clamp(1.25rem, 2.25vw, 1.75rem);
+	}
+
+	.project-icon {
+		width: 2.875rem;
+		height: 2.875rem;
+		display: grid;
+		place-items: center;
+		border-radius: 0.75rem;
+		font-size: 1.05rem;
+		margin-bottom: 1.15rem;
+	}
+
+	.project-icon[data-tint="mint"] { background: #e2eed7; color: #315237; }
+	.project-icon[data-tint="lavender"] { background: #eee8f5; color: #644a83; }
+	.project-icon[data-tint="sand"] { background: #f5ebd7; color: #784d1f; }
+
+	.project-card h3 {
+		font-size: 1.27rem;
+		font-weight: 700;
+		line-height: 1.4;
+	}
+
+	.project-card p {
+		flex: 1;
+		margin-top: 0.625rem;
+		font-size: 0.9375rem;
+		line-height: 1.75;
+		color: var(--site-muted);
+	}
+
+	.project-stack {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.35rem 0.6rem;
+		margin: 1rem 0;
+		font-family: var(--site-mono);
+		font-size: 0.72rem;
+		color: var(--site-muted);
+	}
+
+	.project-stack li + li::before {
+		content: "·";
+		margin-right: 0.6rem;
+	}
+
+	.project-links {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		border-top: 1px solid var(--site-border);
+		padding-top: 0.875rem;
+	}
+
+	@media (max-width: 700px) {
+		.project-grid { grid-template-columns: minmax(0, 1fr); }
+	}
+</style>

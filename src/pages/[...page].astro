@@ -14,20 +14,12 @@ export const getStaticPaths = (async ({ paginate }) => {
 // https://github.com/withastro/astro/issues/6507#issuecomment-1489916992
 
 const { page } = Astro.props;
-
-const len = page.data.length;
 ---
 
-<MainGridLayout>
-    {page.currentPage === 1 &&
-        <PersonalHome />
-    }
-    {page.currentPage === 1 &&
-        <div class="flex items-center gap-3 mb-4 mt-2 onload-animation">
-            <h2 class="text-xl font-bold text-90 whitespace-nowrap">最新文章</h2>
-            <div class="h-px w-full bg-black/10 dark:bg-white/15"></div>
-        </div>
-    }
-    <PostPage page={page}></PostPage>
-    <Pagination class="mx-auto onload-animation" page={page} style={`animation-delay: calc(var(--content-delay) + ${(len)*50}ms)`}></Pagination>
+<MainGridLayout
+	title={page.currentPage === 1 ? undefined : `文章 · 第 ${page.currentPage} 页`}
+	description="core（@11suixing11）的个人博客，记录本地工具、浏览器白板、在线评测和开源开发。"
+>
+	{page.currentPage === 1 ? <PersonalHome posts={page.data} /> : <PostPage page={page} />}
+	{page.lastPage > 1 && <Pagination class="mx-auto mt-6" page={page} />}
 </MainGridLayout>

@@ -1,14 +1,22 @@
 ---
 import ArchivePanel from "@components/ArchivePanel.svelte";
-import I18nKey from "@i18n/i18nKey";
-import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { getSortedPostsList } from "../utils/content-utils";
 
-const sortedPostsList = await getSortedPostsList();
+const sortedPosts = await getSortedPostsList();
+const description = "按发布日期浏览工程笔记，也可以按分类或标签筛选。";
 ---
 
-<MainGridLayout title={i18n(I18nKey.archive)}>
-    <ArchivePanel sortedPosts={sortedPostsList} client:only="svelte"></ArchivePanel>
+<MainGridLayout title="文章归档" description={description}>
+	<div class="archive-wrap">
+		<header class="site-heading">
+			<h1>文章归档</h1>
+			<p>{description}</p>
+		</header>
+		<ArchivePanel sortedPosts={sortedPosts} client:load />
+	</div>
 </MainGridLayout>
 
+<style>
+	.archive-wrap { max-width: 55rem; margin-inline: auto; }
+</style>

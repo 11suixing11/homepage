@@ -1,7 +1,7 @@
 ---
 title: 你好，世界
 published: 2026-09-29
-description: 博客的第一篇文章——说说这个站点是怎么来的，以及怎么写一篇新文章。
+description: Fuwari 版博客的开篇，包括建站初衷和写文章的方式。
 tags: [随笔]
 category: 随笔
 draft: false
@@ -9,7 +9,7 @@ draft: false
 
 欢迎来到我的博客！👋
 
-这是本站的第一篇文章。站点由 [Astro](https://astro.build) 驱动，主题使用开源的 [Fuwari](https://github.com/saicaca/fuwari)。如果你也想要一个这样的博客，可以照着折腾。
+这是 Fuwari 版博客的开篇。站点由 [Astro](https://astro.build) 驱动，主题使用开源的 [Fuwari](https://github.com/saicaca/fuwari)。如果你也想要一个这样的博客，可以照着折腾。
 
 ## 为什么要有这个博客
 

@@ -1,0 +1,110 @@
+:root {
+    color-scheme: light;
+    --page-bg: #f6f5ee;
+    --card-bg: #fffef9;
+    --primary: oklch(0.43 0.105 var(--hue));
+    --site-ink: #1b2921;
+    --site-muted: #526158;
+    --site-border: #d9ded2;
+    --site-hover: #edf0e7;
+    --site-lime: #d7f58c;
+    --site-width: 75rem;
+    --site-mono: "JetBrains Mono Variable", ui-monospace, Consolas, monospace;
+}
+
+:root.dark {
+    color-scheme: dark;
+    --page-bg: #161e19;
+    --card-bg: #202a24;
+    --primary: oklch(0.82 0.13 var(--hue));
+    --site-ink: #edf3e8;
+    --site-muted: #b3c1b6;
+    --site-border: #3a4a3f;
+    --site-hover: #29372d;
+}
+
+html { scroll-padding-top: 1.5rem; }
+body {
+    background: var(--page-bg);
+    color: var(--site-ink);
+    font-family: Roboto, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+    min-height: 100vh;
+}
+
+:where(a, button, input, select):focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+}
+
+.site-shell {
+    width: min(var(--site-width), calc(100% - clamp(2rem, 7vw, 6rem)));
+    margin-inline: auto;
+}
+
+.site-main { margin-top: clamp(1.35rem, 3vw, 2.1rem); }
+
+.site-heading { margin-bottom: clamp(1.6rem, 4vw, 2.75rem); }
+.site-heading h1 {
+    font-size: clamp(2.1rem, 4.5vw, 3.45rem);
+    font-weight: 700;
+    letter-spacing: -0.045em;
+    line-height: 1.2;
+}
+.site-heading p {
+    max-width: 47rem;
+    margin-top: 0.85rem;
+    color: var(--site-muted);
+    line-height: 1.7;
+}
+
+.site-section + .site-section, .home-hero + .site-section {
+    margin-top: clamp(2.5rem, 5.2vw, 4.15rem);
+}
+
+.site-section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.45rem 1rem;
+    margin-bottom: 1.05rem;
+}
+
+.site-section-heading h2 {
+    font-size: clamp(1.5rem, 3vw, 2.05rem);
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.035em;
+}
+
+.site-card {
+    border: 1px solid var(--site-border);
+    border-radius: 1rem;
+    background: var(--card-bg);
+}
+
+.site-text-link, .site-muted-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.site-text-link { color: var(--primary); }
+.site-muted-link { color: var(--site-muted); }
+.site-text-link svg, .site-muted-link svg { flex: none; width: 0.875rem; height: 0.875rem; }
+.site-text-link:hover, .site-muted-link:hover {
+    color: var(--primary);
+    text-decoration: underline;
+    text-underline-offset: 0.24em;
+}
+
+/* Closed theme/display panels should also stay out of keyboard navigation. */
+.float-panel-closed { visibility: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+    .onload-animation { animation: none; opacity: 1; }
+    html.is-changing .transition-swup-fade { transition: none; }
+    html.is-animating .transition-swup-fade { opacity: 1; transform: none; }
+}

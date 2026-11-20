@@ -7,6 +7,8 @@ category: 建站日志
 draft: false
 ---
 
+> 这篇日志记录 2026 年 9 月的博客版本。现有站点入口见[首页](../../)。
+
 一切从一个参考站开始：[hongshi.cc.cd](https://hongshi.cc.cd/)（红石の空间站），它使用 Hexo + Solitude 主题搭建。分析之后我选了 **Astro** 而非同款 Hexo——纯内容站点用 Astro 默认零 JS、构建快，Markdown 体验也好。这篇日志记录本站的进化过程。
 
 ## 第一版：自建 MVP

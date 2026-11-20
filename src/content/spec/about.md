@@ -1,17 +1,13 @@
-# 关于我
+我做的项目从具体的需求出发。比如把课程平台的待办整理到本地，用浏览器画一张能离线保存的白板，或者给算法练习加一条能回顾错题的路线。
 
-你好，我是 **Yuki**，GitHub 上的 [@11suixing11](https://github.com/11suixing11)。这里记录我在 TypeScript、React、Canvas 交互、开源维护和构建部署过程中的笔记与项目。
+## 我在写什么
+
+这里的文章记录实现过程中的决定：数据放在哪里，读取失败怎样反馈，以及做完之后如何验证。想先体验产品，可以从[项目页](../projects/)找到演示、发布包和源码。想了解实现过程，可以从[文章归档](../archive/)按主题找笔记。
+
+## 交流
+
+功能建议、使用问题和错误报告适合发到对应仓库的 Issues。报告错误时，可以附上复现步骤、预期结果和运行环境。
 
 ## 关于本站
 
-- 基于 [Astro](https://astro.build) 构建，主题使用开源的 [Fuwari](https://github.com/saicaca/fuwari)
-- 支持深浅色模式、站内搜索、RSS 订阅与 KaTeX 数学公式
-- 博客线上地址：<https://11suixing11.github.io/homepage/>
-- 本站源码：[11suixing11/homepage](https://github.com/11suixing11/homepage)
-
-::github{repo="11suixing11/11suixing11"}
-
-## 联系我
-
-- GitHub：[@11suixing11](https://github.com/11suixing11)
-- 项目交流：优先到对应仓库提交 Issue，并附上最小复现
+本站使用 Astro 构建，基于 Fuwari，部署在 GitHub Pages。欢迎订阅 [RSS](../rss.xml) 或查看[博客源码](https://github.com/11suixing11/homepage)。
