@@ -1,0 +1,345 @@
+---
+import { Icon } from "astro-icon/components";
+import Search from "../components/Search.svelte";
+import { ownerConfig, siteConfig } from "../config";
+import { getSortedPostsList } from "../utils/content-utils";
+import { formatDateToYYYYMMDD } from "../utils/date-utils";
+import { getPostUrlBySlug, url } from "../utils/url-utils";
+import "../styles/home-showcase.css";
+
+const description = "core (@11suixing11) 的个人主页，展示本地学习工具、浏览器白板、在线评测和工程笔记。";
+const latestPosts = (await getSortedPostsList()).slice(0, 6).map(({ slug, data }) => ({
+  slug,
+  title: data.title,
+  description: data.description,
+  date: formatDateToYYYYMMDD(data.published),
+  category: data.category?.trim() || "未分类",
+  href: getPostUrlBySlug(slug),
+}));
+const preferredFilters = new Map([
+  ["项目笔记", "filterProjects"],
+  ["建站日志", "filterBuild"],
+  ["教程", "filterGuides"],
+  ["随笔", "filterNotes"],
+]);
+const categories = new Set(latestPosts.map(post => post.category));
+const filterCategories = [...new Set([...preferredFilters.keys(), ...categories])].filter(category => categories.has(category));
+---
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>core — 工程笔记与本地优先工具</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={ownerConfig.siteUrl} />
+  <link rel="alternate" type="application/rss+xml" title={siteConfig.title} href={url("/rss.xml")} />
+  <meta property="og:title" content={siteConfig.title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={ownerConfig.siteUrl} />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%2309090B'/%3E%3Ccircle cx='74' cy='28' r='9' fill='%2310B981'/%3E%3Ctext x='47' y='58' dominant-baseline='central' text-anchor='middle' fill='%23FAFAFA' font-family='sans-serif' font-weight='700' font-size='52'%3Ec%3C/text%3E%3C/svg%3E" />
+
+  <script is:inline>document.documentElement.classList.add('js');</script>
+</head>
+<!-- The homepage has its own navigation and canvas, so cross-page links need a full document load. -->
+<body id="top" data-no-swup>
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-aurora" aria-hidden="true"></div>
+  <div class="progress-beam" id="progressBeam"></div>
+
+  <!-- 悬浮玻璃胶囊导航 -->
+  <div class="nav-wrap">
+    <nav class="nav-pill" aria-label="主导航">
+      <a href="#top" aria-label="core 首页" class="brand">
+        <span class="brand-dot"></span>
+        <span>core</span>
+      </a>
+      <div class="nav-links">
+        <a href="#benchmark">项目速览</a>
+        <a href="#projects">项目</a>
+        <a href="#writing">文章</a>
+      </div>
+      <div class="nav-tools">
+        <div class="home-search">
+          <Search client:load label="站内搜索">
+            <Icon slot="searchIcon" name="material-symbols:search-rounded" aria-hidden="true" />
+            <Icon slot="closeIcon" name="material-symbols:close-rounded" aria-hidden="true" />
+          </Search>
+        </div>
+        <a href={ownerConfig.githubUrl} target="_blank" rel="noopener me" class="nav-cta">GitHub ↗</a>
+      </div>
+    </nav>
+  </div>
+
+  <main>
+    <section class="hero" aria-labelledby="heroTitle" data-scene="mindnotes">
+      <canvas class="hero-particles" id="heroParticles" aria-hidden="true" hidden></canvas>
+      <div class="hero-intro">
+        <p class="hero-identity">core / @11suixing11</p>
+        <h1 id="heroTitle"><span>让想法</span><span class="accent-word">变得伟大</span></h1>
+        <p class="hero-sub">我做本地学习工具、浏览器白板和算法训练站。这里记录实现思路和开源项目。</p>
+        <div class="hero-actions">
+          <a href="#projects" class="btn-glow">浏览项目 ↓</a>
+          <a href="#writing" class="btn-glass">阅读笔记</a>
+        </div>
+      </div>
+
+      <section class="scene-console" id="benchmark" aria-labelledby="sceneTitle" data-scene="mindnotes">
+        <div class="scene-top">
+          <h2 id="sceneTitle">实时项目演示</h2>
+          <button class="scene-motion" id="sceneMotion" type="button" aria-controls="sceneArt heroParticles" hidden>暂停演示</button>
+        </div>
+        <div class="race-tabs" role="tablist" aria-label="选择项目" hidden>
+          <button class="race-tab" id="tabMindnotes" type="button" role="tab" aria-selected="true" aria-controls="projectRadarPanel" tabindex="0" data-scene="mindnotes">MindNotes Pro</button>
+          <button class="race-tab" id="tabStudyTasks" type="button" role="tab" aria-selected="false" aria-controls="projectRadarPanel" tabindex="-1" data-scene="tasks">学习任务</button>
+          <button class="race-tab" id="tabDfcm" type="button" role="tab" aria-selected="false" aria-controls="projectRadarPanel" tabindex="-1" data-scene="dfacm">d&amp;f</button>
+        </div>
+        <div id="projectRadarPanel">
+          <div class="scene-surface" id="sceneSurface">
+            <div class="scene-fallback" aria-hidden="true"></div>
+            <canvas class="scene-art" id="sceneArt" tabindex="0" aria-labelledby="sceneCaption" aria-describedby="sceneInstructions" hidden></canvas>
+            <div class="scene-caption">
+              <span id="sceneCaption">空间笔迹</span>
+              <span class="scene-drag" id="sceneInstructions" hidden>拖动或按方向键旋转</span>
+            </div>
+          </div>
+          <div class="scene-copy">
+            <p id="sceneDescription">把白板笔迹变成空间曲线，演示坐标投影和光迹。</p>
+            <a class="replay-btn" id="radarSource" href="https://11suixing11.github.io/mindnotes-pro/" target="_blank" rel="noopener noreferrer">打开白板 ↗</a>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- 技术栈无限平滑滚动带 -->
+    <div class="marquee-section reveal" aria-label="核心技术栈">
+      <div class="marquee-track">
+        <span class="stack-chip"><i></i>TypeScript</span>
+        <span class="stack-chip"><i></i>React + Canvas</span>
+        <span class="stack-chip"><i></i>IndexedDB</span>
+        <span class="stack-chip"><i></i>C# / .NET 10</span>
+        <span class="stack-chip"><i></i>WPF + WebView2</span>
+        <span class="stack-chip"><i></i>SQLite</span>
+        <span class="stack-chip"><i></i>Hydro OJ</span>
+        <span class="stack-chip"><i></i>Astro + Fuwari</span>
+        <span class="stack-chip"><i></i>GitHub Pages</span>
+        <!-- 仅为滚动效果重复，不向读屏工具重复播报 -->
+        <span class="stack-chip" aria-hidden="true"><i></i>TypeScript</span>
+        <span class="stack-chip" aria-hidden="true"><i></i>React + Canvas</span>
+        <span class="stack-chip" aria-hidden="true"><i></i>IndexedDB</span>
+        <span class="stack-chip" aria-hidden="true"><i></i>C# / .NET 10</span>
+        <span class="stack-chip" aria-hidden="true"><i></i>WPF + WebView2</span>
+        <span class="stack-chip" aria-hidden="true"><i></i>SQLite</span>
+        <span class="stack-chip" aria-hidden="true"><i></i>Hydro OJ</span>
+        <span class="stack-chip" aria-hidden="true"><i></i>Astro + Fuwari</span>
+        <span class="stack-chip" aria-hidden="true"><i></i>GitHub Pages</span>
+      </div>
+    </div>
+
+    <section class="block" id="projects" aria-labelledby="projectsTitle">
+      <div class="block-head reveal">
+        <div>
+          <h2 class="block-title" id="projectsTitle">交互式开源作品</h2>
+          <p class="projects-intro">试画一笔，或切换步骤，看看三个项目怎样工作。</p>
+        </div>
+        <a class="home-section-link" href={url("/projects/")}>全部项目与开源贡献 ↗</a>
+      </div>
+      <div class="bento-grid">
+        <article class="bento-card board-card reveal" aria-labelledby="boardTitle">
+          <header>
+            <div class="card-top">
+              <h3 id="boardTitle"><a class="card-name" href="https://github.com/11suixing11/mindnotes-pro" target="_blank" rel="noopener">MindNotes Pro</a></h3>
+              <a class="card-link-btn" href="https://11suixing11.github.io/mindnotes-pro/" target="_blank" rel="noopener">打开白板 ↗</a>
+            </div>
+            <p class="card-desc">在浏览器里画草图、整理思路，再把结果导出分享。画板内容默认保存在当前浏览器。</p>
+          </header>
+          <div class="board-lab" role="group" aria-label="MindNotes Pro 试画" hidden>
+            <div class="board-toolbar">
+              <div class="board-controls">
+                <div class="board-palette" role="group" aria-label="画笔颜色">
+                  <button class="ink-swatch" type="button" style="--ink: #6ef4c5" data-ink="#6ef4c5" aria-label="薄荷绿" aria-pressed="true"></button>
+                  <button class="ink-swatch" type="button" style="--ink: #ffbb76" data-ink="#ffbb76" aria-label="琥珀橙" aria-pressed="false"></button>
+                  <button class="ink-swatch" type="button" style="--ink: #b5a7ff" data-ink="#b5a7ff" aria-label="蓝紫色" aria-pressed="false"></button>
+                </div>
+                <label class="board-width">笔宽
+                  <select id="boardWidth">
+                    <option value="2">细</option>
+                    <option value="4" selected>中</option>
+                    <option value="8">粗</option>
+                  </select>
+                </label>
+              </div>
+              <div class="board-actions">
+                <button class="board-tool" id="undoCanvas" type="button" aria-controls="miniBoard" aria-disabled="true">撤销</button>
+                <button class="board-tool" id="clearCanvas" type="button" aria-controls="miniBoard" aria-label="清除笔迹">清空</button>
+                <button class="board-tool" id="sampleCanvas" type="button" aria-controls="miniBoard">载入示例</button>
+                <button class="board-tool" id="exportCanvas" type="button" aria-controls="miniBoard" aria-label="导出 PNG">PNG ↓</button>
+              </div>
+            </div>
+            <div class="mini-canvas-box">
+              <canvas id="miniBoard" aria-label="用鼠标、手指或触控笔在示例图上绘制" aria-describedby="canvasHint"></canvas>
+            </div>
+            <p class="canvas-hint" id="canvasHint">在示例图上画一笔。刷新前可将这次试画导出为 PNG。</p>
+          </div>
+          <dl class="board-features">
+            <div><dt>组织内容</dt><dd>自由画笔和可编辑模板适合草图、流程图和个人笔记。</dd></div>
+            <div><dt>本地保存</dt><dd>用 IndexedDB 自动保存，支持安装为 PWA 离线使用。</dd></div>
+            <div><dt>导出与备份</dt><dd>支持 PNG、JPEG、PDF 和 SVG，也可用 JSON 备份与迁移。</dd></div>
+          </dl>
+          <div class="tag-row"><span class="tag">TypeScript</span><span class="tag">React</span><span class="tag">Canvas 2D</span><span class="tag">IndexedDB</span></div>
+        </article>
+        <article class="bento-card task-card reveal" aria-labelledby="taskTitle">
+          <header>
+            <div class="card-top">
+              <h3 id="taskTitle"><a class="card-name" href="https://github.com/11suixing11/study-task-hub" target="_blank" rel="noopener">学习任务聚合平台</a></h3>
+              <a class="card-link-btn" href="https://github.com/11suixing11/study-task-hub/releases" target="_blank" rel="noopener">查看发布 ↗</a>
+            </div>
+            <p class="card-desc">把学习通、雨课堂等平台上的作业和测验收进一张本地待办清单。登录和作业提交在各自的原平台完成。</p>
+          </header>
+          <div class="project-flow" data-project-flow>
+            <div class="project-flow-tabs" role="tablist" aria-label="课程同步步骤" hidden>
+              <button type="button" role="tab" id="taskLoginTab" aria-controls="taskLogin">官方登录</button>
+              <button type="button" role="tab" id="taskCoursesTab" aria-controls="taskCourses">选择课程</button>
+              <button type="button" role="tab" id="taskSyncTab" aria-controls="taskSync">同步待办</button>
+            </div>
+            <div class="flow-panels">
+              <section class="flow-panel" id="taskLogin">
+                <h4>在原平台确认登录</h4>
+                <p>应用读取授权后的课程目录。同步范围由你选好课程后确定。</p>
+                <ul class="flow-results" aria-label="登录状态示例">
+                  <li><span>学习通 · 示例状态</span><strong>课程目录已读取</strong></li>
+                  <li><span>雨课堂 · 示例状态</span><strong>需要重新登录</strong></li>
+                </ul>
+              </section>
+              <section class="flow-panel" id="taskCourses">
+                <h4>给待办清单划定范围</h4>
+                <p>勾选要持续跟踪的课程。取消勾选后，已有记录保留在本地，后续同步按新范围执行。</p>
+                <ul class="flow-results" aria-label="选课示例">
+                  <li><span>数据结构 · 示例</span><strong>纳入同步</strong></li>
+                  <li><span>离散数学 · 示例</span><strong>保留历史记录</strong></li>
+                </ul>
+              </section>
+              <section class="flow-panel" id="taskSync">
+                <h4>核对读到了哪些任务</h4>
+                <p>显示来源、截止时间依据和同步结果。遇到会话过期或分页未读完，可以回原平台核对。</p>
+                <ul class="flow-results" aria-label="同步结果示例">
+                  <li><span>实验报告 · 示例</span><strong>截止日期已确认</strong></li>
+                  <li><span>章节测验 · 示例</span><strong>部分分页待核对</strong></li>
+                </ul>
+              </section>
+            </div>
+          </div>
+          <div class="project-links"><a href={getPostUrlBySlug("study-task-hub-sync")} target="_blank" rel="noopener">阅读同步设计笔记 ↗</a></div>
+          <div class="tag-row"><span class="tag">C# / .NET 10</span><span class="tag">WPF</span><span class="tag">Android</span><span class="tag">SQLite</span></div>
+        </article>
+        <article class="bento-card training-card reveal" aria-labelledby="trainingTitle">
+          <header>
+            <div class="card-top">
+              <h3 id="trainingTitle"><a class="card-name" href="https://github.com/11suixing11/dfacm-oj" target="_blank" rel="noopener">d&amp;f算法网</a></h3>
+              <a class="card-link-btn" href="https://dfacm.website/" target="_blank" rel="noopener">访问网站 ↗</a>
+            </div>
+            <p class="card-desc">沿专题路线练题，用 Hydro OJ 查看提交结果，再把错题放进下一轮练习。</p>
+          </header>
+          <div class="project-flow" data-project-flow>
+            <div class="project-flow-tabs" role="tablist" aria-label="算法训练步骤" hidden>
+              <button type="button" role="tab" id="trainingRouteTab" aria-controls="trainingRoute">练题</button>
+              <button type="button" role="tab" id="trainingJudgeTab" aria-controls="trainingJudge">评测</button>
+              <button type="button" role="tab" id="trainingReviewTab" aria-controls="trainingReview">复盘</button>
+            </div>
+            <div class="flow-panels">
+              <section class="flow-panel" id="trainingRoute">
+                <h4>选一个专题连续练</h4>
+                <p>路线按章节组织。可以先做完同一专题的基础题，再进入综合练习。</p>
+                <ul class="flow-results" aria-label="训练路线示例">
+                  <li><span>图论入门 · 示例路线</span><strong>遍历 → 最短路</strong></li>
+                </ul>
+              </section>
+              <section class="flow-panel" id="trainingJudge">
+                <h4>在提交记录里看结果</h4>
+                <p>由 Hydro OJ 运行测试用例并返回评测状态。提交记录可以用来对照同一道题的多次结果。</p>
+                <ul class="flow-results" aria-label="评测状态示例">
+                  <li><span>最短路练习 · 示例提交</span><strong>运行超时</strong></li>
+                </ul>
+              </section>
+              <section class="flow-panel" id="trainingReview">
+                <h4>回到错题继续练</h4>
+                <p>结合旧提交定位卡住的地方，修正思路后再提交。赛事日历也能按类型筛选并订阅。</p>
+                <ul class="flow-results" aria-label="复盘计划示例">
+                  <li><span>最短路练习 · 示例计划</span><strong>复查复杂度 → 重做</strong></li>
+                </ul>
+              </section>
+            </div>
+          </div>
+          <div class="project-links">
+            <a href="https://dfacm.website/training/" target="_blank" rel="noopener">训练入口 ↗</a>
+            <a href="https://dfacm.website/calendar" target="_blank" rel="noopener">赛事日历 ↗</a>
+            <a href={getPostUrlBySlug("dfacm-training")} target="_blank" rel="noopener">阅读训练笔记 ↗</a>
+          </div>
+          <div class="tag-row"><span class="tag">Hydro OJ</span><span class="tag">JavaScript</span></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- 博客文章区（带弹性滑块过滤 + 玻璃阅读弹窗） -->
+    <section class="block" id="writing">
+      <div class="block-head reveal">
+        <div>
+          <h2 class="block-title">最新文章与架构笔记</h2>
+        </div>
+
+        <div class="filter-shell" id="filterShell" role="tablist" aria-label="筛选文章类别" hidden>
+          <div class="filter-glider" id="filterGlider" aria-hidden="true"></div>
+          <button class="filter-btn active" id="filterAll" type="button" role="tab" aria-selected="true" aria-controls="postList" tabindex="0">全部</button>
+          {filterCategories.map((category, index) => (
+            <button class="filter-btn" id={preferredFilters.get(category) ?? `filterCategory${index}`} type="button" role="tab" aria-selected="false" aria-controls="postList" tabindex="-1" data-cat={category}>{category}</button>
+          ))}
+        </div>
+      </div>
+
+      <div class="post-list reveal" id="postList">
+        {latestPosts.map(post => (
+          <article class="post-row" data-id={post.slug} data-cat={post.category}>
+            <time class="post-date" datetime={post.date}>{post.date}</time>
+            <a class="post-main-link" data-open-post={post.slug} href={post.href}>
+              <div class="post-body">
+                <h3>{post.title}</h3>
+                {post.description && <p>{post.description}</p>}
+              </div>
+            </a>
+            <div class="post-right">
+              <span class="post-pill">{post.category}</span>
+              <a class="post-original" data-post-original href={post.href} target="_blank" rel="noopener" aria-label={`阅读《${post.title}》原文`}>原文 ↗</a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>© <span id="year">2026</span> core (@11suixing11) · 工程笔记与开源项目</span>
+    <div class="foot-links">
+      <a href="https://github.com/11suixing11" target="_blank" rel="noopener">GitHub</a>
+      <a href={url("/archive/")}>文章归档</a>
+      <a href={url("/about/")}>关于</a>
+      <a href={url("/rss.xml")}>RSS</a>
+      <a href="#top">回到顶部 ↑</a>
+    </div>
+  </footer>
+
+  <!-- 用原生 dialog 提供 Esc 关闭及背景隔离 -->
+  <dialog class="reader-card" id="readerModal" aria-labelledby="readerTitle">
+    <div class="reader-bar">
+      <span class="reader-meta" id="readerMeta"></span>
+      <a class="reader-original" id="readerOriginal" target="_blank" rel="noopener">网站原文 ↗</a>
+      <button class="reader-close" id="readerClose" type="button" aria-label="关闭文章阅读窗">关闭</button>
+    </div>
+    <div class="prose">
+      <h2 id="readerTitle" tabindex="-1">文章阅读器</h2>
+      <div id="readerBody"></div>
+    </div>
+  </dialog>
+
+  <script src="../scripts/home-showcase.js"></script>
+</body>
+</html>

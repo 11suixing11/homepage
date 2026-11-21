@@ -14,14 +14,14 @@ const links = navBarConfig.links
 
 <header class="site-header" data-pagefind-ignore>
 	<div class="site-shell site-navbar">
-		<a class="site-brand" href={url("/")} aria-label={`${siteConfig.title}首页`}>
+		<a class="site-brand" href={url("/")} data-no-swup aria-label={`${siteConfig.title}首页`}>
 			<span class="brand-icon"><Icon name="fa6-solid:code" aria-hidden="true" /></span>
 			<span>{ownerConfig.name}<span class="brand-period" aria-hidden="true">.</span></span>
 		</a>
 
 		<nav class="site-nav" aria-label="主导航">
 			{links.map((link) => (
-				<a data-site-nav href={url(link.url)} aria-current={pathsEqual(Astro.url.pathname, url(link.url)) ? "page" : undefined}>
+				<a data-site-nav href={url(link.url)} data-no-swup={pathsEqual(link.url, "/") ? true : undefined} aria-current={pathsEqual(Astro.url.pathname, url(link.url)) ? "page" : undefined}>
 					{link.name}
 				</a>
 			))}
